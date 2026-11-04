@@ -56,8 +56,8 @@ jobs:
         run: pip install pytest requests pymysql
       - name: LLM provider pool routing
         run: python tests/test_llm_pool.py
-      - name: Call-site and reminder tests
-        run: python -m pytest tests/test_llm_call_sites.py tests/test_reminders.py -q
+      - name: Call-site, reminder and emotion tests
+        run: python -m pytest tests/test_llm_call_sites.py tests/test_reminders.py tests/test_emotion_engine.py -q
 
   frontend:
     name: Frontend build
