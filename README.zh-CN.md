@@ -26,6 +26,8 @@
   <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/login.png" width="24%" alt="登录" />
 </p>
 <p align="center"><em>首页 · 聊天 · 记忆 · 登录 —— 实机截图</em></p>
+<p align="center"><sub>图片没显示？部分网络会屏蔽 <code>camo.githubusercontent.com</code>（GitHub 用来代理所有 README 图片的域名）。
+截图原文件也在 <a href="docs/screenshots">docs/screenshots</a>。</sub></p>
 
 ---
 
@@ -164,6 +166,42 @@ docker compose up -d
 
 ---
 
+## 配置
+
+两个文件驱动整个项目：`.env` 放密钥与部署开关，`config.yaml` 放行为配置。
+
+- **必填**：`JWT_SECRET_KEY` —— 没有它后端直接拒绝启动。
+- **可选**：所有大模型 Key。一个都不配时自动进入离线演示模式。
+- **供应商池**：有序列表，某家故障后进入 60 秒冷却，请求自动切下一家；没有 Key 的条目启动时跳过。
+- **角色路由**：内部八个角色（`chat`、`light`、`inner`、`think`、`emotion`、`tool`、`memory`、`proactive`）各自指向一个模型 —— 分析用便宜模型，真正说出口的那句话用更强的模型。
+- **语音**：CosyVoice2 → GPT-SoVITS → Edge TTS → 百度 → 本地 → gTTS，逐级自动降级。
+
+环境变量清单、`config.yaml` 全部配置段与成本控制方案：
+[docs/CONFIGURATION.zh-CN.md](docs/CONFIGURATION.zh-CN.md) · [English](docs/CONFIGURATION.md)
+
+---
+
+## 接口
+
+所有路由都在 `server.py`，与后端交互有两种方式：
+
+- **REST** —— 统一信封 `{ "code", "data", "message" }`，鉴权用 `Authorization: Bearer <access_token>`
+- **WebSocket** —— `/ws?token=<access_token>`；聊天走流式 `response_chunk`，通话音频走二进制帧
+
+| 示例 | 接口 |
+|---|---|
+| 登录 | `POST /api/auth/login` |
+| 聊天（非流式） | `POST /api/message` |
+| 聊天（SSE） | `POST /api/message/stream` |
+| 情感状态 | `GET /api/emotion/state` |
+| 记忆列表 | `GET /api/memory/list` |
+| 检查更新 | `GET /api/version/check` |
+
+完整接口目录、请求示例与 WebSocket 关闭码：
+[docs/API.zh-CN.md](docs/API.zh-CN.md) · [English](docs/API.md)
+
+---
+
 ## 目录结构
 
 ```
@@ -176,7 +214,7 @@ docker compose up -d
 ├── frontend/            # React 19 应用 + Capacitor 安卓工程
 ├── admin/               # 可选管理后台（Vite）
 ├── site/                # 静态页（隐私政策 / 服务条款）
-├── docs/                # 架构说明与截图
+├── docs/                # 架构、配置、接口说明与截图
 ├── scripts/ tests/      # 脚本与测试
 ├── config.example.yaml  # 配置模板
 └── .env.example         # 环境变量模板

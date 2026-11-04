@@ -4,8 +4,8 @@ app:
   log_dir: logs
   name: 喵艺
   project_root: .
-  version: v13.0
-  version_name: Secure Companion
+  version: 1.1.9
+  version_name: Miaoyi
 
 # ============ 数据库配置（双模式） ============
 # type: sqlite（本机开发，零依赖）| mysql（云服务器/生产）
@@ -77,12 +77,10 @@ llm:
       api_key_env: DEEPSEEK_API_KEY
       api_base: https://api.deepseek.com/v1
       model_name: deepseek-flash
-      # 推理模型先耗 token 生成 reasoning_content：调用方 max_tokens 很小时
-      # （内心独白 80 / 工具 JSON 160）正文会为空，此处兜底预算下限。
+      # 推理型模型会先耗 token 生成 reasoning_content：调用方 max_tokens 很小时
+      # （内心独白 80 / 工具 JSON 160）正文可能为空，此处兜底预算下限。
       min_max_tokens: 700
-      # ↑ DeepSeek V4.1 Flash（2026-09 发布）：推理超上代旗舰、原生视觉、
-      # 1M 上下文、Agent 能力强化；缓存命中输入 0.02-0.04 元/M，未命中 1-2 元/M，
-      # 输出 4-8 元/M（空闲半价）。在 .env 加 DEEPSEEK_API_KEY 后自动启用。
+      # 在 .env 配置 DEEPSEEK_API_KEY 后自动启用；未配置则跳过这一家。
     - provider: openai-compat
       api_key_env: MOONSHOT_API_KEY
       api_base: https://api.moonshot.cn/v1
@@ -109,14 +107,13 @@ llm:
   #   proactive → core/proactive_engine.py 主动消息（预留）
   # 换模型只改这里的 model 名（须在 providers 中有同名条目）。
   #
-  # 【双脑模式：智谱 + DeepSeek（两份 key 均已验证可用）】
-  #   DeepSeek deepseek-flash → 说话主力（chat 流式主链路）：更深共情、回复更完整
-  #   智谱 glm-4-flash         → 快路径脑区（寒暄/情感洞察/工具决策）+ 故障兜底
-  #   智谱 glm-4v-flash        → 视觉看图
-  #   实测：glm-4-flash 首响 0.7~1.0s 但回复偏短(8~13 token)；
-  #         deepseek-flash 首响 1.5~1.9s，回复完整且更有猫娘味 → 用作主力。
+  # 【双脑模式：一个强模型说话 + 一个快模型打杂】
+  #   chat 角色（示例中的 deepseek-flash）→ 说话主力，负责真正说出口的那句回复
+  #   其余角色（示例中的 glm-4-flash）   → 寒暄、情感洞察、工具决策等高频小任务
+  #   视觉（glm-4v-flash）             → 用户发图时看图
+  #   这样质量集中在用户感知最强的地方，成本集中在调用最频繁的地方可控。
   #   注：调用方显式传 model 时角色路由不生效（见 core/llm_provider.py chat()），
-  #       故只有"无 model 的流式主链路"会走 chat 角色；后台小任务仍用 glm-4-flash。
+  #       故只有"无 model 的流式主链路"会走 chat 角色；后台小任务仍用 roles 配置。
   # ============================================================
   roles:
     chat:      {model: deepseek-flash}   # 说话主力（主回复流式）
@@ -219,7 +216,7 @@ voice:
   wake_word: 喵艺
   wake_word_enabled: false
   whisper_model: base
-  # 【L4 TTS 流式化】CosyVoice2 流式引擎（DashScope WebSocket，首包 ~150ms，情感直通语音参数）
+  # 【L4 TTS 流式化】CosyVoice2 流式引擎（DashScope WebSocket，边合成边下发，情感直通语音参数）
   # 需在 .env 配置 DASHSCOPE_API_KEY（阿里云百炼），未配置时自动回退原语音降级链
   cosyvoice_enabled: true
   cosyvoice_model: cosyvoice-v2

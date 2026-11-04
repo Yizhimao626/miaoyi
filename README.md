@@ -26,6 +26,8 @@
   <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/login.png" width="24%" alt="Login" />
 </p>
 <p align="center"><em>Home · Chat · Memory · Login — captured from the running app</em></p>
+<p align="center"><sub>Images not loading? Some networks block <code>camo.githubusercontent.com</code>, which GitHub uses to proxy every README image.
+The screenshots are also in <a href="docs/screenshots">docs/screenshots</a>.</sub></p>
 
 ---
 
@@ -164,6 +166,42 @@ docker compose up -d
 
 ---
 
+## Configuration
+
+Two files drive everything: `.env` for secrets and deployment switches, `config.yaml` for behaviour.
+
+- **Required:** `JWT_SECRET_KEY` — the backend refuses to start without it.
+- **Optional:** every LLM key. With none configured, the app runs in offline demo mode.
+- **Provider pool:** an ordered list; a failing provider enters a 60 s cooldown and the next one takes over. Providers without a key are skipped at startup.
+- **Role routing:** eight internal roles (`chat`, `light`, `inner`, `think`, `emotion`, `tool`, `memory`, `proactive`), each pointing at a model — cheap models for analysis, a stronger one for the reply the user actually reads.
+- **Voice:** CosyVoice2 → GPT-SoVITS → Edge TTS → Baidu → local → gTTS, degrading automatically.
+
+Environment variables, every `config.yaml` section, and cost-control recipes:
+[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [中文](docs/CONFIGURATION.zh-CN.md)
+
+---
+
+## API
+
+All routes live in `server.py`, and there are two ways to talk to the backend:
+
+- **REST** — envelope `{ "code", "data", "message" }`, auth via `Authorization: Bearer <access_token>`
+- **WebSocket** — `/ws?token=<access_token>`; streaming `response_chunk` frames for chat, binary frames for call audio
+
+| Example | Endpoint |
+|---|---|
+| Login | `POST /api/auth/login` |
+| Chat (non-streaming) | `POST /api/message` |
+| Chat (SSE) | `POST /api/message/stream` |
+| Emotion state | `GET /api/emotion/state` |
+| Memories | `GET /api/memory/list` |
+| App update check | `GET /api/version/check` |
+
+Full endpoint catalogue, request examples and WebSocket close codes:
+[docs/API.md](docs/API.md) · [中文](docs/API.zh-CN.md)
+
+---
+
 ## Repository layout
 
 ```
@@ -176,7 +214,7 @@ docker compose up -d
 ├── frontend/            # React 19 app + Capacitor Android project
 ├── admin/               # optional admin console (Vite)
 ├── site/                # static pages (privacy policy / terms)
-├── docs/                # architecture notes and screenshots
+├── docs/                # architecture, configuration, API notes and screenshots
 ├── scripts/ tests/      # tooling and tests
 ├── config.example.yaml  # configuration template
 └── .env.example         # environment template
