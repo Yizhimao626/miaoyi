@@ -3948,8 +3948,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     temp_audio.write(audio_bytes)
                     temp_audio.close()
                     
-                    def transcribe_audio():
-                        return app_state.VOICE_MANAGER.transcribe_file(temp_audio.name)
+                    _audio_path = temp_audio.name
+
+                    def transcribe_audio(_path=_audio_path):
+                        return app_state.VOICE_MANAGER.transcribe_file(_path)
                     
                     try:
                         text = await asyncio.get_event_loop().run_in_executor(GLOBAL_THREAD_POOL, transcribe_audio)
@@ -4106,7 +4108,8 @@ async def websocket_endpoint(websocket: WebSocket):
                         status_updates = []
                         last_status = None
                         
-                        def status_callback(status, detail=""):
+                        def status_callback(status, detail="", _updates=status_updates,
+                                            _msg_id=client_message_id):
                             nonlocal last_status
                             status_messages = {
                                 'thinking': '🤔 正在分析情感...',
@@ -4116,11 +4119,11 @@ async def websocket_endpoint(websocket: WebSocket):
                             }
                             content = detail or status_messages.get(status, '')
                             if content and content != last_status:
-                                status_updates.append({
+                                _updates.append({
                                     'type': 'thinking_status',
                                     'content': content,
                                     'status': status,
-                                    'client_message_id': client_message_id,
+                                    'client_message_id': _msg_id,
                                 })
                                 last_status = content
                         
@@ -4180,23 +4183,23 @@ async def websocket_endpoint(websocket: WebSocket):
                         chunk_queue: asyncio.Queue = asyncio.Queue()
                         _main_loop = asyncio.get_running_loop()
 
-                        def _on_chunk(delta: str):
+                        def _on_chunk(delta: str, _loop=_main_loop, _q=chunk_queue):
                             if delta:
-                                _main_loop.call_soon_threadsafe(
-                                    chunk_queue.put_nowait, delta)
+                                _loop.call_soon_threadsafe(_q.put_nowait, delta)
 
-                        async def _pump_chunks():
+                        async def _pump_chunks(_q=chunk_queue, _cid=client_message_id):
                             while True:
-                                delta = await chunk_queue.get()
+                                delta = await _q.get()
                                 await websocket.send_json({
                                     'type': 'response_chunk',
                                     'delta': delta,
-                                    'client_message_id': client_message_id,
+                                    'client_message_id': _cid,
                                 })
 
-                        def process_message_sync():
+                        def process_message_sync(_text=text, _ctx=context,
+                                                 _cb=status_callback, _on=_on_chunk):
                             return app_state.CORE_INSTANCE.process_message(
-                                user_id, text, context, status_callback, on_chunk=_on_chunk)
+                                user_id, _text, _ctx, _cb, on_chunk=_on)
 
                         pump_task = asyncio.create_task(_pump_chunks())
                         try:
@@ -4374,8 +4377,8 @@ async def websocket_endpoint(websocket: WebSocket):
                         await websocket.send_json({'type': 'tts_result', 'error': '合成请求太频繁，歇一小会儿喵～'})
                     else:
                         try:
-                            def synthesize_sync():
-                                return app_state.VOICE_MANAGER.synthesize_to_file(tts_text)
+                            def synthesize_sync(_t=tts_text):
+                                return app_state.VOICE_MANAGER.synthesize_to_file(_t)
                             audio_path = await asyncio.get_event_loop().run_in_executor(GLOBAL_THREAD_POOL, synthesize_sync)
                             if audio_path and os.path.exists(audio_path):
                                 await websocket.send_json({

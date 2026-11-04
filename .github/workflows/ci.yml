@@ -27,7 +27,7 @@ jobs:
       - name: Static check for runtime-breaking errors
         run: |
           pip install ruff
-          ruff check --select F821,F811,F822,F823,E9 .
+          ruff check --select F821,F811,F822,F823,E9,B023 .
       - name: Import smoke test (lightweight modules only)
         run: |
           python - <<'PY'
