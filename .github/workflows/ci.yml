@@ -24,6 +24,10 @@ jobs:
           python-version: '3.11'
       - name: Byte-compile all backend modules
         run: python -m compileall -q server.py db_manager.py db_backend.py app_state.py memory_server.py config.py core services utils
+      - name: Static check for runtime-breaking errors
+        run: |
+          pip install ruff
+          ruff check --select F821,F811,F822,F823,E9 .
       - name: Import smoke test (lightweight modules only)
         run: |
           python - <<'PY'

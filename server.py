@@ -839,7 +839,7 @@ async def lifespan(app: FastAPI):
                 # 【mem0 式冲突解决】把已有记忆一并交给 LLM：
                 # 新事实走 facts，被今日对话推翻的旧记忆走 obsolete_keys（淘汰）
                 try:
-                    _, _, existing_facts = core.memory.get_memory_context_bundle(user_id)
+                    _, _, existing_facts = core.memory.get_memory_context_bundle(uid)
                 except Exception:
                     existing_facts = {}
                 existing_lines = '\n'.join(f"- {k}: {v}" for k, v in existing_facts.items()) or '（暂无）'
@@ -3769,7 +3769,7 @@ async def upload_file(file: UploadFile = File(...), current_user: dict = Depends
         return create_response(200, {
             'filename': filename,
             'file_url': f'/uploads/{filename}',
-            'file_size': file_size,
+            'file_size': len(content),
         }, '文件上传成功')
     
     except Exception as e:
