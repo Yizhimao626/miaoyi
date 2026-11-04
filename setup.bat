@@ -48,8 +48,8 @@ echo ✅ 依赖安装成功
 echo.
 echo [4/4] 初始化配置文件...
 if not exist config.yaml (
-    copy config.yaml.example config.yaml >nul 2>&1
-    echo ⚠️  请编辑 config.yaml 配置 API Key
+    copy config.example.yaml config.yaml >nul 2>&1
+    echo ⚠️  请编辑 config.yaml 配置模型与语音
 )
 
 if not exist .env (
@@ -63,9 +63,9 @@ echo    🎉 安装完成！
 echo ================================================
 echo.
 echo 使用方法：
-echo   1. 编辑 .env 文件，配置 API Key
+echo   1. 编辑 .env，填入 JWT_SECRET_KEY（必填）与可选的模型 API Key
 echo   2. 运行: .venv\Scripts\python.exe server.py
-echo   3. 打开浏览器访问: http://127.0.0.1:8000
+echo   3. 打开浏览器访问: http://127.0.0.1:8001
 echo.
 echo 可选功能安装：
 echo   - 离线语音识别: pip install vosk

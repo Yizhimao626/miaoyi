@@ -58,8 +58,7 @@ switch ($Action) {
         Write-Host "=== 下一步 ===" -ForegroundColor Yellow
         Write-Host "1. 运行 .\build.ps1 build 构建前端"
         Write-Host "2. 运行 .\build.ps1 apk 构建 APK"
-        Write-Host "3. 推送代码到 GitHub"
-        Write-Host "4. 在 Render.com 部署"
+        Write-Host "3. 按 README 的快速开始启动后端"
     }
     
     default {
@@ -69,4 +68,4 @@ switch ($Action) {
 }
 
 Write-Host ""
-Write-Host "详细说明请查看 DEPLOY.md" -ForegroundColor Cyan
+Write-Host "构建与打包说明见 README 的 Quick start 一节" -ForegroundColor Cyan
