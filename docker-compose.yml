@@ -1,0 +1,71 @@
+# 喵艺 AI 伴侣 · Docker Compose
+# ================================
+# 后端端口 8001，前端端口 5173
+
+version: '3.8'
+
+services:
+  # 后端服务
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: miaoyi-backend
+    restart: unless-stopped
+    # .env 里的 Key / 密钥会注入容器（先 cp .env.example .env）
+    # 没有 .env 时可改用 docker-compose.override.yml 注入
+    env_file:
+      - .env
+    ports:
+      - "8001:8001"
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - DATABASE_PATH=/app/data/miaoyi.db
+      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+      # 离线演示模式：镜像默认 ENVIRONMENT=production，这里显式打开，
+      # 保证没配 Key 也能开箱跑通（配了任意 Key 时会自动走真实模型）
+      - MIAOYI_MOCK_LLM=1
+      # 注意：敏感配置请通过 .env 文件或 docker-compose.override.yml 注入
+      # - ZHIPU_API_KEY=your-zhipu-api-key
+      # - JWT_SECRET_KEY=your-jwt-secret
+      # - ADMIN_PASSWORD=your-strong-admin-password
+    volumes:
+      - miaoyi-data:/app/data
+      - miaoyi-backups:/app/backups
+      - miaoyi-logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - miaoyi-net
+
+  # 前端服务（开发模式）
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: miaoyi-frontend
+    restart: unless-stopped
+    # 构建产物由 nginx 监听 80，宿主机映射到 5173；API/WS 由 nginx 反代到 backend:8001
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - miaoyi-net
+
+volumes:
+  miaoyi-data:
+    driver: local
+  miaoyi-backups:
+    driver: local
+  miaoyi-logs:
+    driver: local
+
+networks:
+  miaoyi-net:
+    driver: bridge

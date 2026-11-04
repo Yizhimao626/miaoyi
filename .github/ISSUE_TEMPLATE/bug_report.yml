@@ -1,0 +1,54 @@
+name: Bug report
+description: 报告一个可复现的问题 / Report a reproducible bug
+title: "[Bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交前请确认：**不要粘贴 API Key、服务器地址、用户聊天记录。**
+        Please make sure no API keys, server addresses, or user chat logs are included.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么 / What happened
+      description: 实际行为，与预期行为的差异
+      placeholder: 例如：点击拨号后接通但没有任何声音
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤 / Steps to reproduce
+      placeholder: |
+        1. 打开聊天页
+        2. 点击通话按钮
+        3. 观察到...
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 运行端 / Platform
+      options:
+        - Web (Chrome / Edge)
+        - Web (Safari / iOS)
+        - Android APK
+        - Desktop (Electron)
+        - Backend only
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关日志 / Relevant logs
+      description: 请先脱敏（去掉 token、key、IP、用户 ID）
+      render: shell
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: 版本 / Version
+      placeholder: 1.1.x-cloud 或 commit hash
+    validations: false

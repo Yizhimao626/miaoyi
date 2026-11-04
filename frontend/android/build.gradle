@@ -1,0 +1,11 @@
+plugins {
+    id 'com.android.application' version '8.13.0' apply false
+}
+
+// 【Capacitor 8 对齐】统一变量入口（compileSdk/targetSdk 36、minSdk 24、
+// AndroidX 新版本号），旧的内联 34 参数已废弃。
+apply from: "variables.gradle"
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

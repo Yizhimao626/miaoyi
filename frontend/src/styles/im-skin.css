@@ -1,0 +1,206 @@
+/* ============================================================
+   喵艺 · 拟真 IM 皮肤 + 通话界面样式
+   ============================================================ */
+
+/* ---------- 通话全屏浮层 ---------- */
+.ms-call-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+}
+.ms-call-blur {
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, #1a1423 0%, #0d0b14 100%);
+  backdrop-filter: blur(20px);
+}
+.ms-call-card {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; padding: 40px 28px; width: min(86vw, 380px);
+  color: #f3eef7; text-align: center;
+}
+.ms-call-avatar {
+  width: 96px; height: 96px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 52px;
+  background: radial-gradient(circle at 30% 30%, #ffd6ec, #c98fdd 70%, #8b5fa6);
+  box-shadow: 0 0 30px rgba(201,143,221,.55);
+}
+.ms-call-avatar.small { width: 72px; height: 72px; font-size: 40px; }
+.ms-call-avatar.pulse { animation: ms-pulse 1.4s ease-in-out infinite; }
+.ms-call-avatar.ring { animation: ms-ring 1s ease-in-out infinite; }
+@keyframes ms-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+@keyframes ms-ring { 0%,100%{box-shadow:0 0 20px rgba(201,143,221,.4)} 50%{box-shadow:0 0 44px rgba(201,143,221,.8)} }
+
+.ms-call-name { font-size: 22px; font-weight: 600; letter-spacing: .5px; }
+.ms-call-status { font-size: 14px; color: #b9a9cc; }
+.ms-call-reason { font-size: 15px; color: #e7d9f0; font-style: italic; margin-top: -6px; }
+.ms-call-duration { font-size: 16px; color: #8ef0c0; font-variant-numeric: tabular-nums; }
+/* 麦克风错误提示条（通话中权限被拒等故障可见化） */
+.ms-call-mic-error {
+  font-size: 13px; color: #ffd7d7; background: rgba(220, 60, 60, 0.35);
+  border: 1px solid rgba(255, 120, 120, 0.5); border-radius: 10px;
+  padding: 6px 12px; margin-top: 10px; max-width: 280px; line-height: 1.4;
+}
+.ms-call-ended { font-size: 16px; color: #b9a9cc; margin-top: 8px; }
+
+.ms-call-actions {
+  display: flex; gap: 36px; margin-top: 28px; align-items: center;
+}
+.ms-call-actions.connected { gap: 24px; }
+.ms-call-btn {
+  border: none; cursor: pointer; color: #fff; font-size: 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  transition: transform .12s;
+}
+.ms-call-btn:active { transform: scale(.92); }
+.ms-call-btn.decline {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, #ff5f6d, #c0392b);
+  box-shadow: 0 6px 18px rgba(192,57,43,.45);
+  justify-content: center;
+}
+.ms-call-btn.decline.big { width: 72px; height: 72px; }
+.ms-call-btn.accept {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, #2ecc71, #16a085);
+  box-shadow: 0 6px 18px rgba(22,160,133,.45);
+  justify-content: center;
+  animation: ms-pulse 1.2s ease-in-out infinite;
+}
+.ms-call-btn.ctrl {
+  width: 52px; height: 52px; border-radius: 50%; font-size: 18px;
+  justify-content: center;
+}
+.ms-call-btn.ctrl.on { background: rgba(255,255,255,.14); }
+.ms-call-btn.ctrl.off { background: rgba(255,255,255,.06); opacity: .6; }
+
+/* ---------- 实时字幕 ---------- */
+.ms-subtitle-box {
+  width: 100%; max-height: 180px; overflow-y: auto;
+  background: rgba(0,0,0,.28); border-radius: 14px; padding: 12px 14px;
+  margin-top: 8px; display: flex; flex-direction: column; gap: 6px;
+  scrollbar-width: thin;
+}
+.ms-subtitle-hint { color: #7a6b8c; font-size: 13px; text-align: center; padding: 18px 0; }
+.ms-subtitle-line { font-size: 15px; line-height: 1.5; }
+.ms-subtitle-line.bot { color: #ffe9a8; }
+.ms-subtitle-line.user { color: #cfe9ff; align-self: flex-end; text-align: right; }
+
+/* ---------- 拟真 IM 聊天皮肤（可选启用） ---------- */
+.ms-im { --bubble-me: #07c160; --bubble-her: #2c2c2c; --bg: #0b0b0f; }
+.ms-im .chat-bg { background: var(--bg); }
+.ms-im .bubble-me {
+  background: var(--bubble-me); color: #fff; align-self: flex-end;
+  border-radius: 14px 14px 4px 14px;
+}
+.ms-im .bubble-her {
+  background: var(--bubble-her); color: #fff; align-self: flex-start;
+  border-radius: 14px 14px 14px 4px;
+}
+.ms-im .bubble { max-width: 76%; padding: 10px 14px; margin: 4px 0; font-size: 15px; line-height: 1.45; }
+.ms-im .record-call {
+  align-self: center; background: rgba(255,255,255,.06); color: #b9a9cc;
+  font-size: 13px; padding: 6px 14px; border-radius: 12px; margin: 6px 0;
+}
+.ms-im .record-call.missed { color: #ff8a8a; }
+.ms-im .input-bar {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+  background: #16161c; border-top: 1px solid rgba(255,255,255,.06);
+}
+.ms-im .input-bar input {
+  flex: 1; background: #22222b; border: none; color: #fff;
+  border-radius: 20px; padding: 10px 16px; font-size: 15px; outline: none;
+}
+.ms-im .icon-btn {
+  width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer;
+  background: #22222b; color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center;
+}
+.ms-im .icon-btn.call { background: linear-gradient(135deg,#2ecc71,#16a085); }
+
+/* ============================================================
+   拨号按钮样式（全局 + IM 皮肤）
+   ============================================================ */
+.call-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: none; cursor: pointer; flex-shrink: 0;
+  background: linear-gradient(135deg, #2ecc71, #16a085);
+  color: #fff; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 2px 8px rgba(22,160,133,.35);
+}
+.call-btn:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(22,160,133,.5); }
+.call-btn:active { transform: scale(.94); }
+
+/* 通话进行中时按钮变红（挂断状态） */
+.call-btn.calling {
+  background: linear-gradient(135deg, #ff5f6d, #c0392b);
+  animation: call-pulse 1.2s ease-in-out infinite;
+}
+@keyframes call-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,95,109,.5); }
+  50% { box-shadow: 0 0 0 8px rgba(255,95,109,0); }
+}
+
+/* IM 皮肤下的拨号按钮 */
+.ms-im .call-btn {
+  background: linear-gradient(135deg, #2ecc71, #16a085);
+}
+.ms-im .call-btn.calling {
+  background: linear-gradient(135deg, #ff5f6d, #c0392b);
+}
+
+/* ============================================================
+   通话界面精致化（融入猫咪粉彩主题光晕 + 毛玻璃层次）
+   ============================================================ */
+.ms-call-blur {
+  background:
+    radial-gradient(ellipse at 20% 12%, rgba(255, 138, 128, 0.28), transparent 55%),
+    radial-gradient(ellipse at 82% 88%, rgba(157, 111, 216, 0.28), transparent 55%),
+    linear-gradient(160deg, #1a1423 0%, #0d0b14 100%);
+}
+
+.ms-call-card {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 28px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.4);
+  padding: 44px 30px;
+}
+
+.ms-call-avatar {
+  box-shadow: 0 0 42px rgba(255, 138, 128, 0.5), 0 0 88px rgba(157, 111, 216, 0.32);
+}
+
+/* 实时字幕：毛玻璃 */
+.ms-subtitle-box {
+  background: rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+}
+
+/* 通话控制按钮：精致环形描边 */
+.ms-call-btn.ctrl {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.ms-call-btn.ctrl.on {
+  background: linear-gradient(135deg, rgba(255, 138, 128, 0.85), rgba(255, 160, 150, 0.75));
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(255, 138, 128, 0.4);
+}
+.ms-call-btn.ctrl.off {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* 挂断/接听按钮：光晕呼吸 */
+.ms-call-btn.decline {
+  box-shadow: 0 6px 20px rgba(192, 57, 43, 0.5), 0 0 30px rgba(255, 95, 109, 0.25);
+}
+.ms-call-btn.accept {
+  box-shadow: 0 6px 20px rgba(22, 160, 133, 0.5), 0 0 30px rgba(46, 204, 113, 0.25);
+}

@@ -1,0 +1,83 @@
+# Miaoyi project configuration
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
+[project]
+name = "miaoyi"
+version = "1.0.0"
+description = "喵艺 Miaoyi - an emotionally intelligent AI companion powered by FastAPI, React and multimodal LLMs"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "AGPL-3.0-or-later"
+
+# ---------------------------------------------------------------------------
+# Ruff: fast Python linter + formatter (drop-in for flake8/black/isort)
+# Usage:
+#   pip install ruff
+#   ruff check .            # lint
+#   ruff format --check .   # check formatting
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+exclude = [
+    ".venv",
+    ".venv_coqui",
+    "models",
+    "GPT-SoVITS",
+    "backups",
+    "exports",
+    "temp",
+    "logs",
+    "archive",
+    "node_modules",
+    "**/node_modules",
+    "__pycache__",
+    "*.pyc",
+]
+
+[tool.ruff.lint]
+# E4/E7/E9: style & syntax & undefined-name rules (safest subset of pycodestyle)
+# F:         Pyflakes (unused imports/vars, undefined names)
+# I:         isort (import ordering)
+# UP:        pyupgrade (modernize to py310 syntax)
+# B:         flake8-bugbear (common bugs)
+select = ["E4", "E7", "E9", "F", "I", "UP", "B"]
+ignore = [
+    "E501",  # line length handled by ruff format
+]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI dependency-injection markers are function calls BY DESIGN as
+# default argument values - they are not shared-mutable-default bugs.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Body",
+    "fastapi.Header",
+    "fastapi.Query",
+    "fastapi.File",
+    "fastapi.Form",
+    "fastapi.Cookie",
+    "fastapi.Path",
+    "fastapi.Security",
+    "fastapi.Response",
+    "fastapi.Request",
+    "fastapi.UploadFile",
+    "fastapi.WebSocket",
+    "fastapi.WebSocketDisconnect",
+    "fastapi.staticfiles.StaticFiles",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "services", "enhance", "security", "utils", "web"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+line-ending = "auto"
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"

@@ -1,0 +1,6 @@
+# 喵艺 AI 生产环境附加依赖（仅 Linux；Windows 开发环境无需安装）
+# 用法: pip install -r requirements-prod.txt  （会自动引入 requirements.txt）
+-r requirements.txt
+
+# ASGI 进程管理器（gunicorn 不支持 Windows，故从基础清单移出）
+gunicorn==23.0.0

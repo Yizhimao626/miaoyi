@@ -1,0 +1,2506 @@
+/* ============================================================
+   喵艺 · 手机 App 精致主题层（UI 3.0 · 紫白品牌重构）
+   ------------------------------------------------------------
+   设计理念：柔和紫白 + 少量粉色 + 猫娘治愈风（依据《喵艺 UI/UX 设计规范》）
+   - 主紫 #8B5CF6、浅紫 #E8DCFD、淡紫背景 #F4EEFF
+   - 精致聊天气泡（大圆角+尾巴+状态动效）
+   - 移动端优先（气泡宽度、间距、触控尺寸）
+   覆盖于 App.css 之上，自动适配浅/深色模式
+   ============================================================ */
+
+/* ---------- 1. 主题配色变量（浅色：柔和紫白） ---------- */
+:root {
+  --miaoyi-primary: #8B5CF6;
+  --miaoyi-primary-light: #A66BFF;
+  --miaoyi-primary-dark: #6D3FC4;
+  --miaoyi-secondary: #FFB6D5;
+  --miaoyi-accent: #E8DCFD;
+
+  --miaoyi-bg-primary: #FAF7FF;
+  --miaoyi-bg-secondary: #FFFFFF;
+  --miaoyi-bg-card: #FFFFFF;
+  --miaoyi-bg-chat: #F4EEFF;
+  --miaoyi-bg-input: #FFFFFF;
+
+  --miaoyi-text-primary: #3B3045;
+  --miaoyi-text-secondary: #766C80;
+  --miaoyi-text-muted: #B4A9C0;
+
+  --miaoyi-bubble-user: #8B5CF6;
+  --miaoyi-bubble-user-light: #A66BFF;
+  --miaoyi-bubble-user-gradient: linear-gradient(135deg, #8B5CF6 0%, #A66BFF 50%, #B79CFF 100%);
+  --miaoyi-bubble-ai: #FFFFFF;
+
+  --miaoyi-border-color: #EDE4F7;
+  --miaoyi-border-light: #F1EAF9;
+
+  --miaoyi-radius-lg: 18px;
+  --miaoyi-radius-xl: 24px;
+}
+
+/* 暗色模式：深紫夜空 + 柔光 */
+:root:not([data-theme="light"]) {
+  --miaoyi-primary: #8B5CF6;
+  --miaoyi-primary-light: #A66BFF;
+  --miaoyi-primary-dark: #6D3FC4;
+
+  --miaoyi-bg-primary: #1A1626;
+  --miaoyi-bg-secondary: #221C33;
+  --miaoyi-bg-card: #2C2440;
+  --miaoyi-bg-chat: #14101F;
+  --miaoyi-bg-input: #2C2440;
+
+  --miaoyi-text-primary: #EDE8F7;
+  --miaoyi-text-secondary: #B8AEC8;
+  --miaoyi-text-muted: #6E6480;
+
+  --miaoyi-bubble-user-gradient: linear-gradient(135deg, #6D3FC4 0%, #8B5CF6 50%, #A66BFF 100%);
+  --miaoyi-bubble-ai: #2C2440;
+
+  --miaoyi-border-color: #3A3150;
+  --miaoyi-border-light: #332A48;
+}
+
+/* ---------- 2. 聊天窗口 ---------- */
+
+/* 聊天区：暖色柔和渐变 + 极淡猫爪纹理（纯 CSS 圆点渐变模拟，不引入图片资源） */
+.chat-area {
+  background:
+    radial-gradient(circle at 15% 20%, color-mix(in srgb, var(--miaoyi-primary) 4%, transparent) 0, transparent 60px),
+    radial-gradient(circle at 85% 65%, color-mix(in srgb, var(--miaoyi-primary) 4%, transparent) 0, transparent 55px),
+    radial-gradient(circle at 45% 85%, color-mix(in srgb, var(--miaoyi-secondary) 3%, transparent) 0, transparent 70px),
+    linear-gradient(180deg,
+      var(--miaoyi-bg-secondary) 0%,
+      var(--miaoyi-bg-chat) 32%,
+      var(--miaoyi-bg-chat) 100%);
+}
+
+/* 顶栏：毛玻璃 + 细腻底边 */
+.header {
+  background: color-mix(in srgb, var(--miaoyi-bg-secondary) 82%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--miaoyi-border-light);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* 消息列表：呼吸感内边距 */
+.messages-container {
+  padding: 16px 14px 20px;
+}
+
+/* 情感条：悬浮卡片（毛玻璃） */
+.emotion-bar {
+  background: color-mix(in srgb, var(--miaoyi-bg-card) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 18px;
+  margin: 8px 12px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* 思考指示器：卡片化 */
+.thinking-indicator-bar {
+  border-radius: 16px;
+  margin: 6px 12px;
+  background: color-mix(in srgb, var(--miaoyi-bg-card) 85%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--miaoyi-border-light);
+  box-shadow: var(--miaoyi-shadow-sm);
+}
+
+/* ---------- 3. 聊天气泡：精致化 ---------- */
+
+.message-bubble {
+  max-width: 82%;
+  min-width: 0;                 /* 手机窄屏不撑满 */
+  border-radius: 22px;
+  padding: 12px 16px;
+  line-height: 1.65;
+  box-shadow: 0 2px 10px rgba(60, 40, 30, 0.07);
+  animation: miaoyiMsgIn 0.3s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+}
+
+/* AI 气泡：暖白 + 毛玻璃 + 左小尾巴 */
+.message-bubble.ai {
+  background-color: color-mix(in srgb, var(--miaoyi-bubble-ai) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--miaoyi-border-light);
+  border-top-left-radius: 6px;
+  box-shadow: 0 2px 12px rgba(60, 40, 30, 0.06);
+}
+
+/* AI 气泡左尾巴 */
+.message-bubble.ai::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 16px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 7px 6px 0;
+  border-color: transparent var(--miaoyi-bubble-ai) transparent transparent;
+  filter: drop-shadow(-1px 1px 1px rgba(0, 0, 0, 0.03));
+}
+
+/* 用户气泡：蜜桃粉渐变 + 右小尾巴 + 柔和彩色投影 */
+.message-bubble.user {
+  background: var(--miaoyi-bubble-user-gradient);
+  color: #FFFFFF;
+  border-top-right-radius: 6px;
+  box-shadow: 0 4px 16px rgba(255, 138, 128, 0.28);
+}
+
+.message-bubble.user::after {
+  border-color: transparent transparent transparent var(--miaoyi-bubble-user-light);
+}
+
+/* 发送中：柔和描边 + 呼吸 */
+.message-bubble.sending {
+  opacity: 0.85;
+  border: 1.5px dashed color-mix(in srgb, var(--miaoyi-primary) 55%, transparent);
+  animation: miaoyiSendingPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes miaoyiSendingPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* 失败：红边 + 提示 */
+.message-bubble.failed {
+  border: 1.5px solid #E74C3C;
+  background: color-mix(in srgb, #E74C3C 8%, var(--miaoyi-bubble-ai));
+}
+
+/* 打字指示器：呼吸点 + 猫爪跳动 */
+.message-bubble.typing .breathing-dot {
+  animation: miaoyiBreath 1.2s ease-in-out infinite;
+}
+.message-bubble.typing .loading-paws .paw {
+  display: inline-block;
+  animation: miaoyiPawJump 1.1s ease-in-out infinite;
+}
+.message-bubble.typing .loading-paws .paw:nth-child(2) { animation-delay: 0.15s; }
+.message-bubble.typing .loading-paws .paw:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes miaoyiBreath {
+  0%, 100% { opacity: 0.35; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+@keyframes miaoyiPawJump {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-4px); }
+}
+
+/* 消息进入动画 */
+@keyframes miaoyiMsgIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------- 4. 输入区：胶囊 + 毛玻璃 ---------- */
+
+.input-bar {
+  background: color-mix(in srgb, var(--miaoyi-bg-input) 80%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 28px;
+  box-shadow: 0 6px 24px rgba(60, 40, 30, 0.1);
+  margin: 0 12px 12px;
+  padding: 6px 8px;
+}
+
+.message-input {
+  background: transparent;
+  font-size: 16px;  /* iOS 防缩放 */
+}
+
+/* 输入区按钮：圆形触控区 */
+.input-tools button,
+.input-bar button {
+  border-radius: 50%;
+  min-width: 36px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- 5. 底部导航：毛玻璃 ---------- */
+.bottom-nav {
+  background: color-mix(in srgb, var(--miaoyi-bg-secondary) 88%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid var(--miaoyi-border-light);
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+}
+
+.nav-item {
+  border-radius: 14px;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+.nav-item.active {
+  background: color-mix(in srgb, var(--miaoyi-primary) 14%, transparent);
+}
+
+/* ---------- 6. 时间分组：精致胶囊 ---------- */
+.time-divider {
+  margin: 18px 0 22px;
+}
+.time-divider-text {
+  background: color-mix(in srgb, var(--miaoyi-bg-card) 80%, transparent);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 11px;
+  color: var(--miaoyi-text-secondary);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 6px rgba(60, 40, 30, 0.06);
+}
+
+/* ---------- 7. 消息头像：猫咪主题 ---------- */
+.message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--miaoyi-bg-secondary);
+  box-shadow: 0 2px 8px rgba(255, 138, 128, 0.22);
+  font-size: 17px;
+}
+
+/* AI 头像：蜜桃粉渐变 */
+.message-item.ai .message-avatar,
+.chat-avatar.ai-avatar {
+  background: linear-gradient(135deg, #FFC4B0 0%, #FF8A80 100%);
+}
+
+/* 用户头像：从蓝色改为紫罗兰（与蜜桃粉气泡柔和对比，统一猫咪粉彩主题） */
+.message-item.user .message-avatar {
+  background: linear-gradient(135deg, #B39DDB 0%, #9D6FD8 100%);
+  box-shadow: 0 2px 8px rgba(157, 111, 216, 0.24);
+}
+
+/* ---------- 8. 全局动效与细节 ---------- */
+.btn-press {
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+}
+.btn-press:active {
+  transform: scale(0.94);
+}
+
+/* 滚动条美化 */
+.messages-container::-webkit-scrollbar,
+.chat-body::-webkit-scrollbar {
+  width: 3px;
+}
+.messages-container::-webkit-scrollbar-thumb,
+.chat-body::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--miaoyi-border-color) 70%, transparent);
+  border-radius: 3px;
+}
+
+/* ---------- 9. 会话列表：卡片化 + 主题头像 ---------- */
+.session-wrapper {
+  border-radius: 16px;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+.session-wrapper:hover {
+  background: color-mix(in srgb, var(--miaoyi-primary) 7%, transparent);
+}
+.session-avatar {
+  background: linear-gradient(135deg, #FFC4B0 0%, #FF8A80 100%);
+  border: 2px solid var(--miaoyi-bg-secondary);
+  box-shadow: 0 3px 10px rgba(255, 138, 128, 0.22);
+}
+.session-unread {
+  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
+  min-width: 20px;
+  font-weight: 600;
+}
+
+/* ---------- 10. 启动屏：精致光晕 ---------- */
+.splash-screen {
+  background: linear-gradient(160deg, #FFF0EA 0%, var(--miaoyi-bg-primary) 45%, #F3E8FF 100%);
+}
+.splash-logo {
+  filter: drop-shadow(0 10px 24px rgba(255, 138, 128, 0.4));
+  animation: miaoyiSplashBounce 1.6s ease-in-out infinite;
+}
+.splash-title {
+  background: linear-gradient(135deg, #FF8A80 0%, #9D6FD8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 6px rgba(255, 138, 128, 0.25));
+}
+
+@keyframes miaoyiSplashBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.04); }
+}
+
+/* 暗色模式：启动屏渐变适配 */
+:root:not([data-theme="light"]) .splash-screen {
+  background: linear-gradient(160deg, #2A1F28 0%, var(--miaoyi-bg-primary) 50%, #1F1A26 100%);
+}
+
+/* ---------- 12. 个人页统计弹窗 ---------- */
+.profile-stats-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: miaoyiMsgIn 0.2s ease both;
+}
+.profile-stats-modal {
+  width: min(86vw, 340px);
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 24px;
+  padding: 24px 20px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+.stats-modal-title {
+  font-size: 18px;
+  color: var(--miaoyi-text-primary);
+  margin: 0 0 18px;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stats-item {
+  background: color-mix(in srgb, var(--miaoyi-primary) 8%, var(--miaoyi-bg-secondary));
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 16px;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+.stats-item-label {
+  font-size: 12px;
+  color: var(--miaoyi-text-secondary);
+}
+.stats-item b {
+  font-size: 22px;
+  color: var(--miaoyi-primary-dark);
+}
+.stats-modal-close {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 999px;
+  background: var(--miaoyi-primary-gradient, linear-gradient(135deg, #FF8A80, #FFA79E));
+  background: linear-gradient(135deg, #FF8A80, #FFA79E);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* ---------- 14. 情感历史（心情日记） ---------- */
+.emotion-history {
+  padding: 4px 0 20px;
+}
+.emotion-chart-card {
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 18px;
+  padding: 14px 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 16px rgba(60, 40, 30, 0.06);
+}
+.emotion-chart-title {
+  margin: 0 0 8px 4px;
+  font-size: 14px;
+  color: var(--miaoyi-text-primary);
+}
+.emotion-chart-svg {
+  width: 100%;
+  height: 140px;
+}
+.emotion-chart-grid {
+  stroke: var(--miaoyi-border-light);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.emotion-chart-line {
+  opacity: 0.9;
+}
+.emotion-chart-legend {
+  font-size: 10px;
+  fill: var(--miaoyi-text-secondary);
+}
+.emotion-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.emotion-history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+.emotion-history-emoji {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.emotion-history-info {
+  flex: 1;
+  min-width: 0;
+}
+.emotion-history-name {
+  font-size: 13px;
+  color: var(--miaoyi-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.emotion-history-pct {
+  font-size: 11px;
+  color: var(--miaoyi-text-muted);
+}
+.emotion-history-bar-bg {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--miaoyi-border-light);
+  overflow: hidden;
+}
+.emotion-history-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.emotion-history-time {
+  font-size: 11px;
+  color: var(--miaoyi-text-muted);
+  flex-shrink: 0;
+}
+.emotion-history-empty {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--miaoyi-text-secondary);
+  font-size: 14px;
+}
+.emotion-history-empty .empty-emoji {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+.emotion-history-empty p {
+  margin: 4px 0;
+  color: var(--miaoyi-text-primary);
+}
+.emotion-history-empty span {
+  font-size: 12px;
+  color: var(--miaoyi-text-muted);
+}
+
+/* ---------- 15. 微信式消息排版（学习手机微信的清晰排版） ---------- */
+
+/* 【换行 bug 修复】.message-content 缺少 min-width:0 与 max-width，
+   导致 .message-bubble 的百分比宽度相对未限宽父容器形成循环计算，
+   气泡被压到每行只显示两个字。固定 content 宽度，气泡宽度自适应内容。 */
+.message-content {
+  min-width: 0;
+  max-width: calc(100% - 48px); /* 头像 40px + gap 8px */
+  flex: 1 1 auto;
+}
+
+/* 气泡：微信式紧凑圆角（保留猫咪粉彩主题色） */
+.message-bubble {
+  max-width: 100%;
+  width: fit-content;
+  min-width: 0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 16px;
+  line-height: 1.55;
+  box-shadow: 0 1px 2px rgba(60, 40, 30, 0.06);
+}
+
+.message-bubble.user {
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FF8A80 0%, #FF9E8F 60%, #FFA79E 100%);
+  box-shadow: 0 2px 8px rgba(255, 138, 128, 0.2);
+}
+
+.message-bubble.ai {
+  border-radius: 12px;
+  background: var(--miaoyi-bubble-ai);
+  border: none;
+  box-shadow: 0 1px 2px rgba(60, 40, 30, 0.05);
+}
+
+/* 弱化猫耳装饰（微信式简洁，避免视觉突兀） */
+.bubble-cat-ears {
+  display: none;
+}
+
+/* 消息间距紧凑（微信式） */
+.message-item {
+  margin: 5px 0;
+}
+.message-item + .message-item {
+  margin-top: 2px;
+}
+
+/* 消息文字排版清晰 */
+.message-text {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--miaoyi-text-primary);
+  word-break: break-word;
+}
+
+/* 时间戳：气泡下方小字（若存在） */
+.message-time,
+.bubble-time {
+  font-size: 11px;
+  color: var(--miaoyi-text-muted);
+  margin-top: 4px;
+}
+
+/* Markdown 元素适配气泡 */
+.md-code-block {
+  font-size: 13px;
+  border-radius: 8px;
+  margin: 6px 0;
+}
+.md-inline {
+  font-size: 14px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--miaoyi-border-light) 60%, transparent);
+}
+.md-list {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+.md-img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 4px 0;
+}
+
+/* ---------- 16. 输入区按钮精致化 ---------- */
+
+/* 输入区通用按钮：圆形触控 */
+.input-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--miaoyi-bg-secondary) 70%, transparent);
+  color: var(--miaoyi-text-secondary);
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.input-btn:active {
+  transform: scale(0.9);
+}
+
+/* 发送按钮：蜜桃粉渐变圆形 */
+.input-btn.send-btn {
+  background: linear-gradient(135deg, #FF8A80 0%, #FFA79E 100%);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(255, 138, 128, 0.3);
+}
+
+/* 语音按钮：录音中红色脉冲 */
+.input-btn.voice-btn.recording {
+  background: #FF5F6D;
+  color: #fff;
+  animation: miaoyiRecPulse 1.2s ease-in-out infinite;
+}
+@keyframes miaoyiRecPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 95, 109, 0.5); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 95, 109, 0); }
+}
+
+/* 表情按钮 hover 微反馈 */
+.input-btn.emoji-btn-toggle:hover {
+  background: color-mix(in srgb, var(--miaoyi-primary) 14%, transparent);
+  color: var(--miaoyi-primary);
+}
+
+/* ---------- 17. 声音切换选项 ---------- */
+.settings-voice-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px;
+}
+.settings-voice-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 12px;
+  background: var(--miaoyi-bg-card);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.settings-voice-option.active {
+  border-color: var(--miaoyi-primary);
+  background: color-mix(in srgb, var(--miaoyi-primary) 10%, var(--miaoyi-bg-card));
+}
+.settings-voice-name {
+  font-size: 14px;
+  color: var(--miaoyi-text-primary);
+  font-weight: 500;
+}
+.settings-voice-desc {
+  font-size: 11px;
+  color: var(--miaoyi-text-muted);
+}
+
+/* ---------- 18. 记忆标签移除 ---------- */
+.memory-tag-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--miaoyi-primary) 10%, var(--miaoyi-bg-secondary));
+  border: 1px solid var(--miaoyi-border-light);
+  overflow: hidden;
+}
+.memory-tag-wrap.active {
+  border-color: var(--miaoyi-primary);
+}
+.memory-tag-btn {
+  border: none;
+  background: transparent;
+  padding: 4px 4px 4px 10px;
+  font-size: 12px;
+  color: var(--miaoyi-text-secondary);
+  cursor: pointer;
+}
+.memory-tag-remove {
+  border: none;
+  background: transparent;
+  padding: 4px 8px 4px 4px;
+  font-size: 11px;
+  color: var(--miaoyi-text-muted);
+  cursor: pointer;
+}
+.memory-tag-remove:hover {
+  color: var(--miaoyi-danger);
+}
+
+/* ---------- 19. 全局动效统一（弹窗/面板/Toast 入场） ---------- */
+
+/* 弹窗/覆盖层：淡入 */
+.settings-overlay,
+.profile-stats-overlay,
+.fragment-actions-overlay,
+.session-list-overlay {
+  animation: miaoyiFadeIn 0.2s ease both;
+}
+@keyframes miaoyiFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 弹窗内容：淡入 + 上浮 */
+.settings-modal,
+.profile-stats-modal,
+.fragment-actions-modal,
+.session-list {
+  animation: miaoyiPopIn 0.22s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+}
+@keyframes miaoyiPopIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Toast 入场：左侧滑入 */
+.toast {
+  animation: miaoyiToastIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes miaoyiToastIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 侧边栏/面板：平滑滑动 */
+.sidebar,
+.memory-panel,
+.growth-panel,
+.profile-panel {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* 通用元素平滑过渡 */
+.settings-row,
+.session-wrapper,
+.discover-tab,
+.nav-item,
+.profile-action-btn {
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+/* ---------- 13. 发现页 / 个人页 / 登录页 / 侧边栏 ---------- */
+
+/* 发现页：碎片卡片 */
+.fragment-card {
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(60, 40, 30, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.fragment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(60, 40, 30, 0.1);
+}
+.fragment-card.today {
+  background: linear-gradient(160deg,
+    color-mix(in srgb, var(--miaoyi-primary) 12%, var(--miaoyi-bg-card)),
+    var(--miaoyi-bg-card));
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 32%, transparent);
+}
+
+/* 快捷入口卡片 */
+.quick-actions-grid {
+  gap: 12px;
+}
+
+.discover-page,
+.profile-page {
+  background: linear-gradient(180deg,
+    var(--miaoyi-bg-secondary) 0%,
+    var(--miaoyi-bg-primary) 100%);
+}
+
+.discover-tabs,
+.profile-section,
+.profile-stats-visual,
+.profile-stats,
+.memory-card {
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(60, 40, 30, 0.06);
+}
+
+.memory-card {
+  border-radius: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.memory-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(60, 40, 30, 0.1);
+}
+
+.login-screen {
+  background: linear-gradient(180deg,
+    var(--miaoyi-bg-secondary) 0%,
+    var(--miaoyi-bg-chat) 100%);
+}
+.login-tabs {
+  border-radius: 999px;
+  background: var(--miaoyi-bg-input);
+  box-shadow: var(--miaoyi-shadow-sm);
+}
+
+.sidebar,
+.memory-panel,
+.growth-panel,
+.profile-panel {
+  background: var(--miaoyi-bg-secondary);
+}
+
+/* ============================================================
+   20. 精修微调（UI 3.0 收尾）
+   ------------------------------------------------------------
+   - 表情/贴纸面板：毛玻璃 + 主题描边
+   - 每日碎片卡片：入场动效
+   - 新消息按钮：毛玻璃胶囊
+   - 回复条：主题色点缀
+   ============================================================ */
+
+/* 表情/贴纸面板：毛玻璃 */
+.emoji-panel,
+.sticker-panel {
+  background: color-mix(in srgb, var(--miaoyi-bg-card) 88%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--miaoyi-border-light);
+  box-shadow: 0 12px 36px rgba(60, 40, 30, 0.12);
+}
+
+/* 表情分类按钮：选中用主题渐变 */
+.emoji-category-btn.active {
+  background: linear-gradient(135deg, #FF8A80 0%, #FFA79E 100%);
+  box-shadow: 0 2px 8px rgba(255, 138, 128, 0.3);
+}
+
+/* 表情按钮：轻触放大反馈 */
+.emoji-btn:active {
+  transform: scale(1.25);
+}
+
+/* 每日碎片卡片：入场上浮 + 柔和投影（保留原有暖色渐变） */
+.daily-fragment {
+  animation: miaoyiMsgIn 0.4s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+  border: 1px solid var(--miaoyi-border-light);
+  box-shadow: 0 4px 16px rgba(60, 40, 30, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.daily-fragment:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(60, 40, 30, 0.1);
+}
+
+/* 新消息按钮：保留圆形结构，增强动效与主题光影 */
+.new-message-btn {
+  transition: transform 0.18s ease, opacity 0.2s ease, box-shadow 0.18s ease;
+}
+.new-message-btn.has-new {
+  border-color: color-mix(in srgb, var(--miaoyi-primary) 45%, transparent);
+  box-shadow: 0 4px 18px rgba(255, 138, 128, 0.25);
+}
+
+/* 回复条：主题色左点缀 + 贴合输入条的胶囊感 */
+.reply-bar {
+  border-left: 3px solid var(--miaoyi-primary);
+  background: color-mix(in srgb, var(--miaoyi-primary) 6%, var(--miaoyi-bg-card));
+}
+
+/* 搜索按钮：增强光影（保留原有圆形结构） */
+.search-toggle-btn {
+  box-shadow: 0 3px 12px rgba(60, 40, 30, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+}
+.search-toggle-btn:active {
+  transform: scale(0.92);
+}
+
+/* 思考指示器步骤点：当前步骤呼吸强调 */
+.thinking-steps .step-dot.current {
+  animation: miaoyiBreath 1.2s ease-in-out infinite;
+}
+
+/* 离线/断连横幅：圆角胶囊化 */
+.offline-banner,
+.connection-warning {
+  border-radius: 14px;
+  margin: 8px 12px 0;
+  box-shadow: 0 4px 16px rgba(60, 40, 30, 0.08);
+}
+
+/* 断连横幅「配置服务器」按钮：与重连按钮区分，主题描边 */
+.connection-server-btn {
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 45%, transparent);
+  background: color-mix(in srgb, var(--miaoyi-primary) 10%, var(--miaoyi-bg-card));
+  color: var(--miaoyi-primary-dark, var(--miaoyi-primary));
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.connection-server-btn:active {
+  transform: scale(0.95);
+}
+
+/* ============================================================
+   21. 成就墙 / 记忆卡片 / 统计区 精修
+   ============================================================ */
+
+/* 成就卡片：解锁发光边框 + hover 上浮 */
+.achievement-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.achievement-card.unlocked {
+  border-color: color-mix(in srgb, var(--miaoyi-primary) 40%, transparent);
+  background: linear-gradient(160deg,
+    color-mix(in srgb, var(--miaoyi-primary) 10%, var(--miaoyi-bg-card)),
+    var(--miaoyi-bg-card));
+}
+.achievement-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(60, 40, 30, 0.12);
+}
+.achievement-card.unlocked .achievement-emoji {
+  filter: drop-shadow(0 2px 6px rgba(255, 138, 128, 0.35));
+}
+.achievement-card.locked {
+  opacity: 0.65;
+}
+
+/* 解锁徽章：脉冲提示 */
+.achievement-badge {
+  background: linear-gradient(135deg, #FF8A80, #FFA79E);
+  box-shadow: 0 2px 8px rgba(255, 138, 128, 0.3);
+  animation: miaoyiBreath 2s ease-in-out infinite;
+}
+
+/* 记忆卡片：白卡片 + 主题点缀 */
+.memory-card {
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-left: 3px solid color-mix(in srgb, var(--miaoyi-primary) 55%, transparent);
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(60, 40, 30, 0.05);
+}
+
+/* 记忆操作按钮：圆形触控 */
+.memory-action-btn {
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.memory-action-btn:hover {
+  background: color-mix(in srgb, var(--miaoyi-primary) 12%, transparent);
+}
+.memory-action-btn.delete:hover {
+  background: rgba(231, 76, 60, 0.12);
+}
+
+/* 个人页统计视觉区：数字呼吸感 */
+.profile-stats-visual {
+  background: linear-gradient(160deg,
+    color-mix(in srgb, var(--miaoyi-primary) 12%, var(--miaoyi-bg-card)),
+    var(--miaoyi-bg-card) 60%);
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 25%, transparent);
+}
+.profile-stats-visual .stat-value {
+  background: linear-gradient(135deg, var(--miaoyi-primary) 0%, #9D6FD8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 猫粮/统计数字：主题色强调 */
+.stats-item b {
+  background: linear-gradient(135deg, var(--miaoyi-primary-dark), var(--miaoyi-primary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ============================================================
+   22. 长消息折叠（P3 体验）
+   ============================================================ */
+
+/* 折叠态：限制行数，超出隐藏 */
+.message-text.collapsed-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 展开按钮：主题色胶囊 */
+.collapse-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 4px 14px;
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--miaoyi-primary) 8%, var(--miaoyi-bg-card));
+  color: var(--miaoyi-primary-dark, var(--miaoyi-primary));
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.collapse-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+/* ============================================================
+   23. 隐私/协议文档站内展示（APK WebView 兼容）
+   ============================================================ */
+
+/* 文档弹窗：比普通弹窗更高，内容可滚动 */
+.privacy-modal.doc-modal {
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.privacy-doc-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  margin-bottom: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.privacy-doc-pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--miaoyi-text-primary);
+  margin: 0;
+  padding: 4px 2px;
+  text-align: left;
+}
+
+/* ============================================================
+   24. 全屏图片预览（APK WebView 兼容）
+   ============================================================ */
+
+.image-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: miaoyiFadeIn 0.2s ease both;
+}
+
+.image-preview-full {
+  max-width: 94vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  animation: miaoyiPopIn 0.25s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+}
+
+.image-preview-close {
+  position: absolute;
+  top: env(safe-area-inset-top, 12px);
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+/* ============================================================
+   25. UI 4.0 · 五页结构（首页/聊天/记忆/喵艺/我的）
+   依据《喵艺 UI/UX 设计规范》：柔和紫白品牌风
+   ============================================================ */
+
+/* 通用滚动容器 */
+.miaoyi-scroll {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 90px;
+}
+
+/* ---------- 底部导航：5 Tab 紫白 ---------- */
+.miaoyi-nav {
+  background: color-mix(in srgb, var(--miaoyi-bg-secondary) 90%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--miaoyi-border-light);
+}
+.miaoyi-nav .nav-item {
+  flex: 1;
+  padding: 8px 0 10px;
+}
+.miaoyi-nav .nav-item.active .nav-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 2px 6px rgba(139, 92, 246, 0.35));
+}
+.miaoyi-nav .nav-item.active .nav-label {
+  color: var(--miaoyi-primary);
+  font-weight: 600;
+}
+.miaoyi-nav .nav-indicator {
+  background: linear-gradient(135deg, #8B5CF6, #A66BFF);
+}
+
+/* ---------- 首页 ---------- */
+.home-page {
+  background: linear-gradient(180deg, var(--miaoyi-bg-secondary) 0%, var(--miaoyi-bg-primary) 100%);
+}
+
+.home-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 20px 8px;
+}
+.home-greeting-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--miaoyi-text-primary);
+}
+.home-greeting-sub {
+  font-size: 13px;
+  color: var(--miaoyi-text-secondary);
+  margin-top: 4px;
+}
+.home-settings-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--miaoyi-border-light);
+  background: var(--miaoyi-bg-card);
+  font-size: 18px;
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.08);
+}
+
+/* 角色大卡 */
+.home-miaoyi-card {
+  margin: 12px 16px;
+  padding: 24px 20px;
+  background: linear-gradient(160deg,
+    color-mix(in srgb, var(--miaoyi-primary) 10%, var(--miaoyi-bg-card)),
+    var(--miaoyi-bg-card) 60%);
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 22%, transparent);
+  border-radius: 24px;
+  box-shadow: 0 6px 24px rgba(139, 92, 246, 0.08);
+  text-align: center;
+}
+.home-miaoyi-avatar {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #C4B5FD 0%, #8B5CF6 60%, #A66BFF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+  position: relative;
+  animation: miaoyiSplashBounce 3s ease-in-out infinite;
+}
+.home-miaoyi-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--miaoyi-text-primary);
+}
+.home-miaoyi-level {
+  font-size: 12px;
+  color: var(--miaoyi-primary);
+  font-weight: 600;
+  margin: 2px 0 8px;
+}
+.home-mood-row {
+  font-size: 14px;
+  color: var(--miaoyi-text-secondary);
+}
+.home-mood-quote {
+  font-size: 13px;
+  color: var(--miaoyi-text-secondary);
+  margin: 6px 0 14px;
+  font-style: italic;
+}
+
+/* 亲密度条 */
+.home-intimacy {
+  max-width: 260px;
+  margin: 0 auto;
+}
+.home-intimacy-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--miaoyi-text-secondary);
+  margin-bottom: 6px;
+}
+.home-intimacy-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--miaoyi-primary) 14%, transparent);
+  overflow: hidden;
+}
+.home-intimacy-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #8B5CF6, #A66BFF);
+  transition: width 0.8s cubic-bezier(0.22, 0.9, 0.36, 1);
+}
+
+/* 通用卡片 */
+.home-card {
+  margin: 10px 16px;
+  padding: 16px;
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.home-card.clickable:active {
+  transform: scale(0.99);
+}
+.home-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--miaoyi-text-primary);
+  margin-bottom: 8px;
+}
+.home-card-text {
+  font-size: 13px;
+  color: var(--miaoyi-text-secondary);
+  line-height: 1.6;
+}
+.home-card-text.muted {
+  color: var(--miaoyi-text-muted);
+}
+.home-card-btn {
+  margin-top: 10px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #8B5CF6, #A66BFF);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+.home-card-more {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--miaoyi-primary);
+  text-align: right;
+}
+
+.home-memory-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--miaoyi-text-secondary);
+}
+.home-memory-dot {
+  font-size: 12px;
+}
+
+.home-growth-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+.home-growth-item {
+  flex: 1;
+  background: color-mix(in srgb, var(--miaoyi-primary) 6%, var(--miaoyi-bg-secondary));
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 14px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.home-growth-num {
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #8B5CF6, #A66BFF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.home-growth-label {
+  font-size: 11px;
+  color: var(--miaoyi-text-secondary);
+}
+.home-footer-pad {
+  height: 20px;
+}
+
+/* ---------- 记忆页 ---------- */
+.memory-page {
+  background: linear-gradient(180deg, var(--miaoyi-bg-secondary) 0%, var(--miaoyi-bg-primary) 100%);
+}
+.memory-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 8px;
+}
+.memory-page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--miaoyi-text-primary);
+  margin: 0;
+}
+.memory-clear-btn {
+  border: 1px solid color-mix(in srgb, #F28A9B 45%, transparent);
+  background: color-mix(in srgb, #F28A9B 10%, transparent);
+  color: #D96C7F;
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.memory-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 16px;
+  padding: 10px 14px;
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 999px;
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.05);
+}
+.memory-search-icon {
+  font-size: 14px;
+}
+.memory-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--miaoyi-text-primary);
+  outline: none;
+  min-width: 0;
+}
+.memory-search-btn {
+  border: none;
+  background: linear-gradient(135deg, #8B5CF6, #A66BFF);
+  color: #fff;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.memory-categories {
+  padding: 4px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.memory-category-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.05);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.memory-category-card.active {
+  border-color: var(--miaoyi-primary);
+  background: color-mix(in srgb, var(--miaoyi-primary) 5%, var(--miaoyi-bg-card));
+}
+.memory-category-icon {
+  font-size: 24px;
+}
+.memory-category-info {
+  flex: 1;
+  min-width: 0;
+}
+.memory-category-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--miaoyi-text-primary);
+}
+.memory-category-desc {
+  font-size: 11px;
+  color: var(--miaoyi-text-muted);
+  margin-top: 2px;
+}
+.memory-category-arrow {
+  color: var(--miaoyi-text-muted);
+  font-size: 14px;
+}
+
+.memory-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 16px;
+}
+.memory-tag-chip {
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--miaoyi-primary) 10%, var(--miaoyi-bg-card));
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 25%, transparent);
+  color: var(--miaoyi-primary-dark);
+  cursor: pointer;
+}
+
+.memory-list {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.memory-item-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.05);
+}
+.memory-item-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--miaoyi-primary) 10%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.memory-item-body {
+  flex: 1;
+  min-width: 0;
+}
+.memory-item-content {
+  font-size: 13px;
+  color: var(--miaoyi-text-primary);
+  line-height: 1.6;
+}
+.memory-item-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.memory-item-time {
+  font-size: 11px;
+  color: var(--miaoyi-text-muted);
+}
+.memory-item-emotion {
+  font-size: 11px;
+  color: var(--miaoyi-primary);
+}
+.memory-item-actions {
+  flex-shrink: 0;
+}
+.memory-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--miaoyi-text-secondary);
+}
+.memory-empty-emoji {
+  font-size: 44px;
+  margin-bottom: 10px;
+}
+.memory-empty p {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+.memory-empty span {
+  font-size: 12px;
+  color: var(--miaoyi-text-muted);
+}
+
+/* ---------- 喵艺角色页 ---------- */
+.miaoyi-page {
+  background: linear-gradient(180deg, var(--miaoyi-bg-secondary) 0%, var(--miaoyi-bg-primary) 100%);
+}
+.miaoyi-hero {
+  text-align: center;
+  padding: 28px 20px 20px;
+  background: linear-gradient(160deg,
+    color-mix(in srgb, var(--miaoyi-primary) 12%, var(--miaoyi-bg-secondary)),
+    var(--miaoyi-bg-secondary) 70%);
+}
+.miaoyi-hero-avatar {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #C4B5FD 0%, #8B5CF6 60%, #A66BFF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 54px;
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+  animation: miaoyiSplashBounce 3.5s ease-in-out infinite;
+}
+.miaoyi-hero-deco {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  font-size: 20px;
+}
+.miaoyi-hero-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--miaoyi-text-primary);
+}
+.miaoyi-hero-level {
+  font-size: 12px;
+  color: var(--miaoyi-primary);
+  font-weight: 600;
+  margin: 2px 0 8px;
+}
+.miaoyi-hero-mood {
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--miaoyi-primary) 10%, var(--miaoyi-bg-card));
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 25%, transparent);
+  font-size: 13px;
+  color: var(--miaoyi-text-primary);
+}
+
+.miaoyi-card {
+  margin: 12px 16px;
+  padding: 16px;
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.06);
+}
+.miaoyi-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--miaoyi-text-primary);
+  margin-bottom: 12px;
+}
+.miaoyi-intimacy-value {
+  font-size: 26px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #8B5CF6, #A66BFF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+}
+.miaoyi-relation-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.miaoyi-relation-badge {
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #8B5CF6, #A66BFF);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+}
+.miaoyi-relation-days {
+  font-size: 12px;
+  color: var(--miaoyi-text-secondary);
+}
+
+.miaoyi-personality-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.miaoyi-tag {
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--miaoyi-primary) 10%, var(--miaoyi-bg-card));
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 25%, transparent);
+  font-size: 13px;
+  color: var(--miaoyi-primary-dark);
+}
+
+.miaoyi-growth-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--miaoyi-text-secondary);
+  margin-bottom: 6px;
+}
+
+.miaoyi-abilities {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.miaoyi-ability {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--miaoyi-primary) 6%, var(--miaoyi-bg-secondary));
+  border: 1px solid var(--miaoyi-border-light);
+}
+.miaoyi-ability.locked {
+  opacity: 0.55;
+}
+.miaoyi-ability-icon {
+  font-size: 22px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--miaoyi-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.1);
+}
+.miaoyi-ability-info {
+  flex: 1;
+  min-width: 0;
+}
+.miaoyi-ability-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--miaoyi-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.miaoyi-ability-check {
+  color: #6FD6A5;
+  font-size: 13px;
+}
+.miaoyi-ability-desc {
+  font-size: 11px;
+  color: var(--miaoyi-text-muted);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   26. UI 4.0 补全：气泡生命感 / 头部情绪 / 语音失败 / 我的分组
+   ============================================================ */
+
+/* 气泡名字行：喵艺 · 😊 */
+.bubble-sender {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+.bubble-sender-name {
+  font-weight: 600;
+  color: var(--miaoyi-primary);
+}
+.bubble-sender-emoji {
+  font-size: 13px;
+}
+/* 【合规】AI 生成内容标识（2026-07-15 新规要求，醒目可辨） */
+.ai-generated-badge {
+  margin-left: 2px;
+  padding: 1px 5px;
+  border-radius: 6px;
+  font-size: 9px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--miaoyi-primary);
+  background: color-mix(in srgb, var(--miaoyi-primary) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 25%, transparent);
+  user-select: none;
+}
+
+/* 【合规】未成年人模式常驻横幅 */
+.minor-mode-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1500;
+  padding: 6px 12px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: #7a5596;
+  background: linear-gradient(90deg, rgba(255, 214, 232, 0.95), rgba(226, 210, 250, 0.95));
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(140, 100, 180, 0.15);
+}
+
+/* 聊天头部：情绪徽章 + 状态点 */
+.header-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+.header-mood-badge {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--miaoyi-primary) 12%, var(--miaoyi-bg-card));
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 28%, transparent);
+  color: var(--miaoyi-primary-dark);
+  font-size: 11px;
+}
+.header-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.header-status-text {
+  color: var(--miaoyi-text-secondary);
+}
+.header-status-text.pulse {
+  animation: miaoyiBreath 1.2s ease-in-out infinite;
+}
+
+/* 深度思考步骤：文字胶囊 */
+.thinking-steps .step-dot {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--miaoyi-primary) 8%, transparent);
+  color: var(--miaoyi-text-secondary);
+  display: inline-flex;
+  align-items: center;
+}
+.thinking-steps .step-dot.active {
+  background: color-mix(in srgb, var(--miaoyi-primary) 18%, transparent);
+  color: var(--miaoyi-primary-dark);
+}
+.thinking-steps .step-dot.current {
+  background: linear-gradient(135deg, #8B5CF6, #A66BFF);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+/* 语音失败提示：这次声音没能生成出来 [重新播放] */
+.voice-error-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--miaoyi-text-muted);
+}
+.voice-error-retry {
+  border: 1px solid color-mix(in srgb, var(--miaoyi-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--miaoyi-primary) 8%, var(--miaoyi-bg-card));
+  color: var(--miaoyi-primary-dark);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+/* 我的页：分组设置 */
+.profile-settings-groups {
+  margin: 4px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.profile-settings-group-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--miaoyi-text-muted);
+  margin: 12px 4px 6px;
+}
+.profile-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  background: var(--miaoyi-bg-card);
+  border: 1px solid var(--miaoyi-border-light);
+  border-radius: 14px;
+  font-size: 14px;
+  color: var(--miaoyi-text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+.profile-settings-row:active {
+  background: color-mix(in srgb, var(--miaoyi-primary) 8%, var(--miaoyi-bg-card));
+}
+.profile-settings-row .settings-row-icon {
+  font-size: 17px;
+  width: 24px;
+  text-align: center;
+}
+.profile-settings-row .settings-row-label {
+  flex: 1;
+}
+.profile-settings-row .settings-row-arrow {
+  color: var(--miaoyi-text-muted);
+  font-size: 13px;
+}
+.profile-settings-row.danger {
+  color: #D96C7F;
+}
+
+/* ============================================================
+   27. 底部导航聊天大按钮（方案十五）
+   ============================================================ */
+
+.nav-chat-item {
+  position: relative;
+}
+.nav-chat-fab {
+  width: 52px;
+  height: 52px;
+  margin: -18px auto 2px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8B5CF6 0%, #A66BFF 60%, #B79CFF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+  border: 3px solid var(--miaoyi-bg-secondary);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.nav-chat-icon {
+  font-size: 24px;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15));
+}
+.nav-chat-item.active .nav-chat-fab {
+  transform: scale(1.08);
+  box-shadow: 0 8px 26px rgba(139, 92, 246, 0.45);
+  animation: miaoyiBreath 2.2s ease-in-out infinite;
+}
+.nav-chat-item.active .nav-label {
+  color: var(--miaoyi-primary);
+  font-weight: 600;
+}
+
+/* ============================================================
+   28. 喵艺形象（紫发猫娘官方形象）
+   ============================================================ */
+
+/* 首页角色头像 */
+.home-miaoyi-avatar {
+  overflow: hidden;
+}
+.home-miaoyi-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.home-miaoyi-mood-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--miaoyi-bg-card);
+  border: 2px solid color-mix(in srgb, var(--miaoyi-primary) 35%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+}
+
+/* 喵艺页角色头像 */
+.miaoyi-hero-avatar {
+  overflow: hidden;
+}
+.miaoyi-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* 聊天气泡 AI 头像 */
+.message-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 启动页角色形象 */
+.splash-logo-wrap {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 36px rgba(139, 92, 246, 0.35);
+  animation: miaoyiSplashBounce 1.6s ease-in-out infinite;
+}
+.splash-character {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 启动页 Logo 图片 */
+.splash-logo-img {
+  display: block;
+  margin: 4px auto 8px;
+  max-width: 200px;
+  height: auto;
+  filter: drop-shadow(0 4px 16px rgba(139, 92, 246, 0.3));
+  animation: miaoyiMsgIn 0.8s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+}
+
+/* ============================================================
+   29. 魔法立绘卡 + 睡眠插画（第三步）
+   ============================================================ */
+
+/* 黑紫魔法立绘：角色详情卡（响应式防溢出） */
+.miaoyi-magic-card {
+  margin: 12px 16px;
+  padding: 16px;
+  background: linear-gradient(165deg,
+    color-mix(in srgb, #6D3FC4 14%, var(--miaoyi-bg-card)),
+    var(--miaoyi-bg-card) 65%);
+  border: 1px solid color-mix(in srgb, #8B5CF6 30%, transparent);
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(109, 63, 196, 0.12);
+  text-align: center;
+  overflow: hidden;
+}
+.miaoyi-magic-img {
+  max-width: 100%;
+  max-height: 46vh;           /* 移动端不超高，防溢出 */
+  height: auto;
+  width: auto;
+  border-radius: 14px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 6px 20px rgba(109, 63, 196, 0.25));
+}
+.miaoyi-magic-label {
+  margin-top: 10px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #8B5CF6;
+  font-weight: 600;
+}
+
+/* 空状态睡眠插画：替代 CSS 猫咪动画 */
+.empty-cat-animation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+}
+.empty-sleep-img {
+  max-width: 78%;
+  max-height: 150px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 16px;
+  animation: miaoyiMsgIn 0.5s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+  box-shadow: 0 4px 18px rgba(139, 92, 246, 0.12);
+}
+
+/* ============================================================
+   【对标微信 2026-10-01】聊天体验升级样式
+   1) 面板外点击遮罩  2) 引用回复块  3) 会话搜索/置顶/左滑按钮组
+   ============================================================ */
+
+/* —— 面板外点击遮罩（emoji/表情面板打开时覆盖聊天区，点击收起） —— */
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(80, 60, 120, 0.08);
+  z-index: 29; /* 低于 .emoji-panel(30)，高于聊天内容 */
+  animation: panelOverlayIn 0.15s ease-out both;
+}
+@keyframes panelOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* —— 引用回复块（微信样式：左侧竖条 + 名字 + 内容摘要，可点击跳转） —— */
+.reply-indicator {
+  position: relative;
+  padding-left: 12px;
+  border-left: 3px solid var(--miaoyi-primary, #8B5CF6);
+  background: rgba(139, 92, 246, 0.07);
+  border-radius: 0 10px 10px 0;
+  margin-bottom: 6px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-width: 78%;
+  overflow: hidden;
+}
+.reply-indicator.clickable {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.reply-indicator.clickable:active {
+  background: rgba(139, 92, 246, 0.16);
+}
+.reply-quote-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--miaoyi-primary, #8B5CF6);
+  line-height: 1.3;
+}
+.reply-quote-text {
+  font-size: 12px;
+  color: var(--miaoyi-text-muted, #8A8494);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+/* —— 会话搜索框 —— */
+.session-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 14px 0;
+  padding: 7px 12px;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.12);
+  border-radius: 12px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.session-search:focus-within {
+  border-color: rgba(139, 92, 246, 0.45);
+  background: rgba(139, 92, 246, 0.11);
+}
+.session-search-icon {
+  font-size: 13px;
+  opacity: 0.7;
+}
+.session-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--miaoyi-text-primary, #2D2A35);
+  min-width: 0;
+}
+.session-search-input::placeholder {
+  color: var(--miaoyi-text-muted, #8A8494);
+}
+.session-search-clear {
+  border: none;
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--miaoyi-primary, #8B5CF6);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* —— 置顶标识 —— */
+.session-pin-flag {
+  margin-right: 4px;
+  font-size: 11px;
+}
+.session-content-wrapper.pinned .session-content {
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.05), transparent 60%);
+  border-radius: 8px;
+}
+
+/* —— 左滑操作按钮组（置顶 + 删除，替代旧版"滑动过阈值直接删除"） —— */
+.session-action-btns {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: stretch;
+  z-index: 1; /* 与旧版删除按钮一致的层级约定（wrapper 为 2） */
+  /* 默认隐藏：仅行展开或左滑拖拽时露出，避免常驻遮挡时间/角标 */
+  visibility: hidden;
+}
+.session-wrapper.expanded .session-action-btns,
+.session-wrapper.dragging .session-action-btns {
+  visibility: visible;
+}
+.session-swipe-btn {
+  width: 56px;
+  border: none;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.15s ease;
+}
+.session-swipe-btn:active {
+  filter: brightness(0.88);
+}
+.session-swipe-btn.pin {
+  background: #B79CEF; /* 品牌浅紫 */
+}
+.session-swipe-btn.pin.unpin {
+  background: #C9BCDD;
+}
+.session-swipe-btn.delete {
+  background: #F87171; /* 柔和危险红，与治愈风协调 */
+  border-radius: 0;
+}
+
+/* ============================================================
+   【微信化聊天窗口 2026-10-02】顶部导航 + 更多菜单
+   本文件后于 App.css 加载，同名选择器在此覆盖
+   ============================================================ */
+
+/* 顶部导航：紧凑、白底 */
+.header {
+  padding: 6px 10px;
+  padding-top: calc(6px + env(safe-area-inset-top, 0px));
+  background: var(--miaoyi-bg-card);
+}
+
+.header-menu {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+/* 名字左对齐（微信式），副标题跟在名字下方 */
+.header-title-area {
+  align-items: flex-start;
+  padding-left: 2px;
+  min-width: 0;
+}
+
+.header-title {
+  flex: none;
+  width: 100%;
+  text-align: left;
+  margin: 0;
+  font-size: 17px;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 覆盖 App.css 中绝对定位居中的旧副标题 */
+.header-subtitle {
+  position: static;
+  transform: none;
+  margin-top: 1px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-more {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: var(--miaoyi-text-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.header-more:active {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* 更多菜单：右上角弹出 */
+.header-more-menu {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 50px);
+  right: 8px;
+  width: 196px;
+  background: var(--miaoyi-bg-card);
+  border-radius: 14px;
+  box-shadow: 0 10px 36px rgba(60, 40, 90, 0.2);
+  z-index: 40;
+  padding: 6px;
+  transform-origin: top right;
+  animation: headerMenuPop 0.18s ease-out both;
+}
+
+@keyframes headerMenuPop {
+  from { opacity: 0; transform: scale(0.92) translateY(-6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.header-more-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 9px;
+  font-size: 15px;
+  color: var(--miaoyi-text-primary);
+  cursor: pointer;
+}
+
+.header-more-item:active {
+  background: var(--miaoyi-bg-secondary);
+}
+
+/* ============================================================
+   【App 更新弹窗 2026-10-03】版本检查 → 可选/强制更新
+   ============================================================ */
+.update-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(48, 32, 66, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 24px;
+  animation: updateFadeIn 0.2s ease-out both;
+}
+
+@keyframes updateFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.update-dialog {
+  width: 100%;
+  max-width: 316px;
+  background: var(--miaoyi-bg-card, #FFFFFF);
+  border-radius: 22px;
+  padding: 0 20px 18px;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(80, 50, 120, 0.28);
+  animation: updatePop 0.26s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  overflow: hidden;
+}
+
+@keyframes updatePop {
+  from { opacity: 0; transform: scale(0.88) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.update-hero {
+  position: relative;
+  height: 96px;
+  margin: 0 -20px 6px;
+  background: linear-gradient(135deg, #F6E8FF 0%, #FDE7F3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.update-hero-emoji {
+  font-size: 46px;
+  line-height: 1;
+}
+
+.update-hero-paw {
+  position: absolute;
+  font-size: 16px;
+  right: 42px;
+  top: 22px;
+  opacity: 0.75;
+  transform: rotate(18deg);
+}
+
+.update-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--miaoyi-text-primary, #2B2438);
+}
+
+.update-version {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--miaoyi-text-muted, #8A8494);
+}
+
+.update-notes {
+  margin: 12px 0 16px;
+  padding: 12px 14px;
+  list-style: none;
+  text-align: left;
+  background: var(--miaoyi-bg-secondary, #F6F2FB);
+  border-radius: 12px;
+}
+
+.update-notes li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--miaoyi-text-secondary, #5C5568);
+}
+
+.update-notes li + li {
+  margin-top: 6px;
+}
+
+.update-notes li::before {
+  content: "🐾";
+  position: absolute;
+  left: 0;
+  top: 1px;
+  font-size: 9px;
+}
+
+.update-btn-now {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #9B6CF0 0%, #F07FB8 100%);
+  box-shadow: 0 6px 16px rgba(155, 108, 240, 0.32);
+  cursor: pointer;
+}
+
+.update-btn-now:active {
+  filter: brightness(0.94);
+}
+
+.update-btn-later {
+  margin-top: 10px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--miaoyi-text-muted, #8A8494);
+  cursor: pointer;
+  padding: 4px 10px;
+}
+
+.update-btn-later:active {
+  opacity: 0.7;
+}
+
+.update-force-tip {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #D06A8F;
+}
+
+/* ===== 登录页 · 服务器连接设置 ===== */
+.login-server-cfg {
+  width: 100%;
+  max-width: 340px;
+  margin: 14px auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-server-cfg-toggle {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--miaoyi-text-muted, #9A92A6);
+  padding: 6px 12px;
+  border-radius: 14px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.login-server-cfg-toggle:active {
+  background: rgba(178, 138, 200, 0.12);
+  color: #9B6BC4;
+}
+
+.login-server-cfg-panel {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(196, 160, 220, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(178, 138, 200, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-server-cfg-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13px;
+  border: 1px solid rgba(196, 160, 220, 0.45);
+  border-radius: 12px;
+  background: #fff;
+  color: #5A5070;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.login-server-cfg-input:focus {
+  border-color: #B28AC8;
+}
+
+.login-server-cfg-save {
+  padding: 9px;
+  font-size: 13px;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #c9a6e8, #f3b6d4);
+}

@@ -1,0 +1,25 @@
+# EditorConfig - https://editorconfig.org
+# Unified editor/IDE settings for all contributors.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.{ts,tsx,js,jsx,json,css,html,yml,yaml,md}]
+indent_style = space
+indent_size = 2
+
+# Windows batch files MUST use CRLF, otherwise cmd.exe mis-parses them.
+[*.bat]
+end_of_line = crlf
+
+# JSON files often get rewritten by tooling; keep final newline but allow no indent enforcement issues.
+[*.json]
+indent_size = 2

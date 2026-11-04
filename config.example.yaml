@@ -1,0 +1,232 @@
+app:
+  data_dir: data
+  database_file: miaoyi.db
+  log_dir: logs
+  name: 喵艺
+  project_root: .
+  version: v13.0
+  version_name: Secure Companion
+
+# ============ 数据库配置（双模式） ============
+# type: sqlite（本机开发，零依赖）| mysql（云服务器/生产）
+# 也可用环境变量 MIAOYI_DB_TYPE=mysql 覆盖（优先级更高）
+# 切到 mysql 后，运行 python migrations/sqlite_to_mysql.py 一键迁移历史数据
+database:
+  type: sqlite
+  mysql:
+    host: 127.0.0.1
+    port: 3306
+    user: miaoyi
+    # 【安全】密码从环境变量 / .env 读取（MYSQL_PASSWORD），不要在此写明文
+    password: "${MYSQL_PASSWORD}"
+    database: miaoyi
+    charset: utf8mb4
+
+appearance:
+  accent_color: '#8B5CF6'
+  bot_bubble_color: '#FFFFFF'
+  primary_color: '#6366F1'
+  theme: dark
+  user_bubble_color: '#6366F1'
+emotion:
+  emotional_independence: 0.7
+  empathy_coefficient: 1
+  empathy_decrease_step: 0.2
+  empathy_min: 0.3
+  negative_count_threshold: 3
+  negative_window_minutes: 30
+  redirection_threshold: 0.3
+emotion_memory:
+  # 首次启动是否自动下载情感模型（数百 MB）；开源演示默认关闭，需要时改 true
+  auto_download: false
+  enabled: true
+  model_cache_dir: models
+features:
+  autobiography_enabled: true
+  deep_thinking_enabled: true
+  emotional_memory_enabled: true
+  proactive_chat_enabled: true
+  style_mimicry_enabled: true
+  voice_input_enabled: true
+  voice_output_enabled: true
+llm:
+  api_key_env: ZHIPU_API_KEY
+  # API 基础地址：provider=openai-compat 时必填（如 https://api.deepseek.com/v1）
+  api_base: ''
+  max_retries: 3
+  max_tokens: 4096
+  model_name: glm-4-flash
+  # 服务商适配器：zhipu（智谱SDK）| openai-compat（DeepSeek/Kimi/硅基流动等兼容端点）
+  provider: zhipu
+  retry_delay: 1.0
+  temperature: 0.5
+  thinking_model: glm-4-flash
+  timeout: 30
+  # 【多 API 池】按顺序故障转移：主供应商 429/5xx/超时自动切下一个。
+  # 对应 api_key_env 未配置的条目自动跳过——预置清单不要求配齐所有 key。
+  # 兼容配置管理/多账号，换 key 只改 .env，不改业务代码。
+  providers:
+    - provider: zhipu
+      api_key_env: ZHIPU_API_KEY
+      model_name: glm-4-flash
+    - provider: openai-compat
+      api_key_env: DASHSCOPE_API_KEY
+      api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+      model_name: qwen-plus
+    - provider: openai-compat
+      api_key_env: DEEPSEEK_API_KEY
+      api_base: https://api.deepseek.com/v1
+      model_name: deepseek-flash
+      # 推理模型先耗 token 生成 reasoning_content：调用方 max_tokens 很小时
+      # （内心独白 80 / 工具 JSON 160）正文会为空，此处兜底预算下限。
+      min_max_tokens: 700
+      # ↑ DeepSeek V4.1 Flash（2026-09 发布）：推理超上代旗舰、原生视觉、
+      # 1M 上下文、Agent 能力强化；缓存命中输入 0.02-0.04 元/M，未命中 1-2 元/M，
+      # 输出 4-8 元/M（空闲半价）。在 .env 加 DEEPSEEK_API_KEY 后自动启用。
+    - provider: openai-compat
+      api_key_env: MOONSHOT_API_KEY
+      api_base: https://api.moonshot.cn/v1
+      model_name: moonshot-v1-8k
+  # 【视觉能力】用户发图 → 视觉模型看图 → 主链路以喵艺人格回应。
+  # glm-4v-flash 免费且与主 key 通用；没配 key 时自动降级"看不了图"。
+  vision:
+    provider: openai-compat
+    api_key_env: ZHIPU_API_KEY
+    api_base: https://open.bigmodel.cn/api/paas/v4
+    model_name: glm-4v-flash
+  # ============================================================
+  # 【多智能体分工表】喵艺的 8 个脑区各用哪个模型。
+  # 规则：role 的 model 若在 providers 池中有对应条目（且 key 已配），
+  # 优先路由到该供应商（享受故障转移）；否则回退主供应商。
+  # 各脑区生效位置：
+  #   chat      → core/miaoyi_core.py / dialog_engine（说话主力）
+  #   light     → core/miaoyi_core.py _select_model（寒暄降级省额度）
+  #   inner     → core/miaoyi_core.py _generate_inner_voice（内心独白·先想后说）
+  #   think     → core/thinker.py DeepThinker（深度推理，建议配强模型）
+  #   emotion   → core/emotional_core.py 情感洞察 + feel_about_image 看图感受
+  #   tool      → core/tool_agent.py 工具决策（查天气/时间/搜索）
+  #   memory    → 记忆质量门（预留）
+  #   proactive → core/proactive_engine.py 主动消息（预留）
+  # 换模型只改这里的 model 名（须在 providers 中有同名条目）。
+  #
+  # 【双脑模式：智谱 + DeepSeek（两份 key 均已验证可用）】
+  #   DeepSeek deepseek-flash → 说话主力（chat 流式主链路）：更深共情、回复更完整
+  #   智谱 glm-4-flash         → 快路径脑区（寒暄/情感洞察/工具决策）+ 故障兜底
+  #   智谱 glm-4v-flash        → 视觉看图
+  #   实测：glm-4-flash 首响 0.7~1.0s 但回复偏短(8~13 token)；
+  #         deepseek-flash 首响 1.5~1.9s，回复完整且更有猫娘味 → 用作主力。
+  #   注：调用方显式传 model 时角色路由不生效（见 core/llm_provider.py chat()），
+  #       故只有"无 model 的流式主链路"会走 chat 角色；后台小任务仍用 glm-4-flash。
+  # ============================================================
+  roles:
+    chat:      {model: deepseek-flash}   # 说话主力（主回复流式）
+    light:     {model: glm-4-flash}      # 寒暄
+    inner:     {model: glm-4-flash}      # 内心独白
+    think:     {model: glm-4-flash}      # 深度思考
+    emotion:   {model: glm-4-flash}      # 情感洞察
+    tool:      {model: glm-4-flash}      # 工具决策
+    memory:    {model: glm-4-flash}      # 记忆质量门（预留）
+    proactive: {model: glm-4-flash}      # 主动消息
+  # 智能体开关与参数
+  agents:
+    inner_voice:            # 内心独白智能体
+      enabled: true
+      trigger_prob: 0.55    # 平时触发概率；情绪强/深夜 100% 触发
+    tool_agent:             # 工具智能体（天气/时间/搜索）
+      enabled: true
+    streaming:              # 流式回复（逐字推送）
+      enabled: true
+  # 【语义记忆检索】embedding-3（智谱，与主 key 通用）。
+  # 生效位置：core/memory_system.py SemanticMemory.recall——
+  # 同义表达也能召回记忆；关闭/失败自动回退关键词检索。
+  embeddings:
+    enabled: true
+    api_key_env: ZHIPU_API_KEY
+    api_base: https://open.bigmodel.cn/api/paas/v4
+    model: embedding-3
+logging:
+  backup_count: 5
+  level: DEBUG
+  max_bytes: 10485760
+memory:
+  cache_size: 50
+  max_emotional_memories: 500
+  max_history: 50
+  memory_retention_days: 90
+  vector_threshold: 0.7
+  vector_top_k: 3
+  # 【L9 记忆服务独立进程】三分离架构：聊天/记忆/存储
+  # enabled=true 时主服务经 HTTP 访问 memory_server.py（先启动：python memory_server.py），
+  # 多实例/多端共享同一份记忆；false 时行为与旧版完全一致（进程内直连）
+  remote:
+    enabled: false
+    url: 'http://127.0.0.1:8002'
+    token: 'change-me-local-dev'   # 需与 memory_server 进程的 .env MEMORY_TOKEN 一致
+    timeout: 3.0
+performance:
+  cache_ttl_hours: 24
+  max_concurrent_thinking: 1
+  thinking_timeout_seconds: 60
+  thread_pool_size: 4
+proactive:
+  enabled: true
+  silence_timeout_seconds: 900
+  topic_pool_size: 20
+  trigger_probability: 0.3
+  # 【L7 心跳纪律】噪音预算：任意 1 小时窗口内最多主动消息条数
+  noise_budget_per_hour: 2
+  # 【L7 心跳纪律】免打扰时段（支持跨午夜）：23 点到次日 8 点不主动发消息，
+  # 期间的触发意愿积压到醒后合并为一条"早安日报"
+  dnd_start: 23
+  dnd_end: 8
+  # 【L7 生活模拟】朋友圈动态：作息表模板生成，间隔小时数 + 每日上限
+  moments_enabled: true
+  moments_interval_hours: 3
+  moments_max_per_day: 4
+search:
+  enabled: true
+  max_parallel_requests: 3
+  max_results: 5
+  sources:
+  - baidu
+  - bing
+  - baike
+  timeout: 20
+tmdb:
+  api_key: ""
+  enabled: false
+security:
+  dependency_detection_enabled: true
+  max_message_length: 2000
+  sensitive_word_enabled: true
+server:
+  debug: false
+  host: 0.0.0.0
+  max_port_try: 8100
+  port: 8001
+  reload: false
+style:
+  light_polish_enabled: true
+  mimicry_strength: 0.7
+  semantic_similarity_threshold: 0.9
+voice:
+  asr_engine: whisper
+  enabled: true
+  local_tts_enabled: false
+  silence_threshold: 300
+  speech_timeout_seconds: 5
+  tts_engine: edge
+  wake_word: 喵艺
+  wake_word_enabled: false
+  whisper_model: base
+  # 【L4 TTS 流式化】CosyVoice2 流式引擎（DashScope WebSocket，首包 ~150ms，情感直通语音参数）
+  # 需在 .env 配置 DASHSCOPE_API_KEY（阿里云百炼），未配置时自动回退原语音降级链
+  cosyvoice_enabled: true
+  cosyvoice_model: cosyvoice-v2
+  cosyvoice_voice: longxiaochun_v2
+  # 情感指令直通（emotion → <|endofprompt|> 语气指令）；音色不支持时自动去指令重试
+  cosyvoice_emotion_instruct: true
+  # GPT-SoVITS 本地引擎（可选）：启动 GPT-SoVITS 的 api_v2 后填 base_url 即启用，留空禁用
+  # gptsovits_url: 'http://127.0.0.1:9880'
+  # gptsovits_ref_audio: '参考音频相对 GPT-SoVITS 服务的路径.wav'
+  # gptsovits_prompt_text: '参考音频对应的文字'

@@ -1,0 +1,981 @@
+/* ============================================================
+   喵艺 · 方案一「梦幻浅色」皮肤（最终覆盖层）
+   ------------------------------------------------------------
+   品牌决策：治愈系浅紫少女感，强制浅色，不受系统深色模式影响。
+   本文件在 App.tsx 中最后引入，对背景 / 卡片 / 进度条 /
+   启动页 / 角色页拥有最终决定权。
+   规范色：主紫 #957CF6 · 浅紫底 #F3E5F5 · 渐变 #B39DDB→#957CF6
+   深色文字 #4A4453 · 深紫强调 #5E4B8A
+   ============================================================ */
+
+/* ---------- 0. 设计令牌：全局浅色梦幻基调 ---------- */
+:root,
+:root[data-theme="dark"],
+:root:not([data-theme="light"]) {
+  --miaoyi-primary: #957CF6;
+  --miaoyi-primary-light: #B39DDB;
+  --miaoyi-primary-dark: #7C5CF0;
+  --miaoyi-secondary: #FFB6D5;
+  --miaoyi-accent: #E8DCFD;
+
+  --miaoyi-bg-primary: #F3E5F5;
+  --miaoyi-bg-secondary: #FDFBFF;
+  --miaoyi-bg-card: rgba(255, 255, 255, 0.8);
+  --miaoyi-bg-chat: #F6F0FB;
+  --miaoyi-bg-input: rgba(255, 255, 255, 0.92);
+  --miaoyi-bg-search: rgba(149, 124, 246, 0.08);
+
+  --miaoyi-text-primary: #4A4453;
+  --miaoyi-text-secondary: #6F6580;
+  --miaoyi-text-muted: #A99BB8;
+
+  --miaoyi-bubble-user: #957CF6;
+  --miaoyi-bubble-user-light: #B39DDB;
+  --miaoyi-bubble-user-gradient: linear-gradient(135deg, #B39DDB 0%, #957CF6 100%);
+  --miaoyi-bubble-ai: rgba(255, 255, 255, 0.92);
+
+  --miaoyi-border-color: #EBE0F7;
+  --miaoyi-border-light: #F1E9FA;
+
+  --miaoyi-shadow-sm: 0 2px 8px rgba(149, 124, 246, 0.08);
+  --miaoyi-shadow-md: 0 4px 16px rgba(149, 124, 246, 0.10);
+  --miaoyi-shadow-lg: 0 10px 28px rgba(149, 124, 246, 0.14);
+  --miaoyi-shadow-card: 0 8px 24px rgba(149, 124, 246, 0.10);
+
+  --dream-grad-page: linear-gradient(180deg, #F3E5F5 0%, #F7EFFB 34%, #FDFBFF 70%, #FFFFFF 100%);
+  --dream-grad-bar: linear-gradient(90deg, #B39DDB 0%, #957CF6 100%);
+}
+
+/* ---------- 1. 全局环境：浅紫渐变 + 柔光 ---------- */
+body {
+  background-color: #F3E5F5;
+  background-image: var(--dream-grad-page);
+  background-attachment: fixed;
+  color: var(--miaoyi-text-primary);
+}
+
+.app-container {
+  background-color: #F3E5F5;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(179, 157, 219, 0.18) 0, transparent 46%),
+    radial-gradient(circle at 88% 22%, rgba(255, 182, 213, 0.16) 0, transparent 42%),
+    radial-gradient(circle at 50% 96%, rgba(149, 124, 246, 0.10) 0, transparent 52%),
+    var(--dream-grad-page);
+}
+
+/* 各页面背景透明，统一露出容器的梦幻渐变 */
+.home-page,
+.miaoyi-page,
+.memory-page,
+.profile-page {
+  background: transparent;
+}
+
+/* 聊天区：极淡柔光，不抢内容 */
+.chat-area {
+  background:
+    radial-gradient(circle at 16% 14%, rgba(179, 157, 219, 0.12) 0, transparent 130px),
+    radial-gradient(circle at 84% 72%, rgba(255, 182, 213, 0.10) 0, transparent 150px),
+    linear-gradient(180deg, rgba(253, 251, 255, 0.92) 0%, rgba(246, 240, 251, 0.94) 100%);
+}
+
+/* 关键数据用主色紫高亮 */
+.home-miaoyi-level,
+.miaoyi-hero-level,
+.home-card-more,
+.stat-bar-value {
+  color: var(--miaoyi-primary);
+}
+.home-growth-num {
+  background: var(--dream-grad-bar);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* part2 test */
+
+/* ---------- 2. 卡片：白色半透明毛玻璃 + 大圆角 + 柔和投影 ---------- */
+.home-card,
+.home-miaoyi-card,
+.miaoyi-card,
+.profile-stats-visual,
+.stats-bars-container,
+.profile-stats .stat-card,
+.profile-section,
+.memory-card,
+.about-card,
+.profile-stats-modal {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 22px;
+  box-shadow: 0 8px 24px rgba(149, 124, 246, 0.10);
+}
+
+.home-miaoyi-card {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.86) 0%, rgba(243, 229, 245, 0.62) 100%);
+}
+
+/* 成长小格子：淡紫底 */
+.home-growth-item,
+.miaoyi-ability,
+.stats-item {
+  background: rgba(149, 124, 246, 0.07);
+  border: 1px solid rgba(149, 124, 246, 0.14);
+  border-radius: 16px;
+}
+
+/* 统计图标：统一淡紫圆角底座 */
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(179, 157, 219, 0.22), rgba(149, 124, 246, 0.22));
+  box-shadow: 0 2px 8px rgba(149, 124, 246, 0.12);
+}
+
+/* ---------- 3. 进度条：圆角胶囊 + 紫色渐变填充 ---------- */
+.home-intimacy-bar,
+.stat-bar-bg,
+.growth-bar-bg {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(149, 124, 246, 0.12);
+  overflow: hidden;
+}
+
+.home-intimacy-fill,
+.stat-bar-fill,
+.growth-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--dream-grad-bar);
+  box-shadow: 0 0 10px rgba(149, 124, 246, 0.35);
+  transition: width 0.8s cubic-bezier(0.22, 0.9, 0.36, 1);
+}
+
+/* 语义色进度条：柔和浅色家族 */
+.stat-bar-fill-orange,
+.growth-bar-fill.happy {
+  background: linear-gradient(90deg, #FFD9A8 0%, #FFB27A 100%);
+  box-shadow: 0 0 10px rgba(255, 178, 122, 0.35);
+}
+.growth-bar-fill.sad {
+  background: linear-gradient(90deg, #C3D6FF 0%, #8FB3FF 100%);
+  box-shadow: 0 0 10px rgba(143, 179, 255, 0.35);
+}
+.growth-bar-fill.angry {
+  background: linear-gradient(90deg, #FFC9BE 0%, #FF9A8C 100%);
+  box-shadow: 0 0 10px rgba(255, 154, 140, 0.35);
+}
+.growth-bar-fill.love {
+  background: linear-gradient(90deg, #E3B8FF 0%, #C084FC 100%);
+  box-shadow: 0 0 10px rgba(192, 132, 252, 0.35);
+}
+
+/* ---------- 4. 头像：官方立绘替代黄色猫头 ---------- */
+.profile-avatar-img,
+.about-cat-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+.profile-avatar {
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 14px rgba(149, 124, 246, 0.22);
+  overflow: hidden;
+}
+.about-cat-avatar {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(179, 157, 219, 0.25), rgba(149, 124, 246, 0.25));
+  padding: 4px;
+  box-shadow: 0 6px 18px rgba(149, 124, 246, 0.2);
+}
+
+/* ---------- 5. 启动页：品牌化（Logo + Slogan + 猫爪加载） ---------- */
+.splash-screen {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(179, 157, 219, 0.18) 0, transparent 44%),
+    radial-gradient(circle at 84% 28%, rgba(255, 182, 213, 0.16) 0, transparent 40%),
+    radial-gradient(circle at 50% 92%, rgba(149, 124, 246, 0.12) 0, transparent 48%),
+    linear-gradient(165deg, #F3E5F5 0%, #F8F1FC 48%, #FFFFFF 100%);
+}
+
+/* 极淡猫爪印暗纹（纯 CSS 圆点模拟，无图片依赖） */
+.splash-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(149, 124, 246, 0.055) 5px, transparent 6px);
+  background-size: 84px 84px;
+  pointer-events: none;
+}
+
+.splash-logo-img {
+  position: relative;
+  display: block;
+  width: min(120px, 32vw);
+  height: auto;
+  margin: 0 auto;
+  filter: drop-shadow(0 8px 24px rgba(149, 124, 246, 0.30));
+  animation: dreamLogoIn 0.9s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+}
+.splash-wordmark {
+  position: relative;
+  display: block;
+  width: min(210px, 56vw);
+  height: auto;
+  margin: 14px auto 0;
+}
+
+.splash-subtitle {
+  position: relative;
+  margin-top: 14px;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: #5E4B8A;
+}
+
+.splash-paws {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  margin-top: 40px;
+}
+.splash-paw {
+  font-size: 20px;
+  opacity: 0.25;
+  animation: dreamPawGlow 1.5s ease-in-out infinite;
+}
+.splash-paw:nth-child(2) { animation-delay: 0.25s; }
+.splash-paw:nth-child(3) { animation-delay: 0.5s; }
+
+.splash-loading-text {
+  position: relative;
+  margin-top: 16px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #9A8FB0;
+}
+
+@keyframes dreamLogoIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes dreamPawGlow {
+  0%, 100% { opacity: 0.22; transform: scale(0.92); }
+  35% { opacity: 1; transform: scale(1.18); }
+  70% { opacity: 0.4; transform: scale(1); }
+}
+
+/* ---------- 6. 角色页：沉浸式舞台（单形态 + 切换） ---------- */
+.miaoyi-stage {
+  position: relative;
+  height: min(54vh, 470px);
+  margin: 10px 16px 0;
+  border-radius: 28px;
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.78) 0%, rgba(243, 229, 245, 0.42) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 30px rgba(149, 124, 246, 0.10);
+  overflow: visible;
+}
+
+/* 角色身后柔光 */
+.miaoyi-stage-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  width: 72%;
+  height: 24%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(149, 124, 246, 0.30) 0%, transparent 70%);
+  filter: blur(8px);
+  animation: dreamGlowPulse 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* 去底立绘：脚部微微探出卡片，制造破框立体感 */
+.miaoyi-stage-img {
+  position: absolute;
+  left: 50%;
+  bottom: -16px;
+  height: 90%;
+  max-width: 84%;
+  object-fit: contain;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 14px 28px rgba(124, 92, 240, 0.26));
+  animation: dreamFormIn 0.55s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 名字 / 等级 / 心情：悬浮在舞台顶部 */
+.miaoyi-stage-info {
+  position: absolute;
+  top: 18px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 2;
+}
+.miaoyi-stage-info .miaoyi-hero-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4A4453;
+  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.8);
+}
+.miaoyi-stage-info .miaoyi-hero-level {
+  margin: 2px 0 8px;
+}
+.miaoyi-stage-info .miaoyi-hero-mood {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(149, 124, 246, 0.22);
+  font-size: 13px;
+  color: #5E4B8A;
+}
+
+/* 形态标签 + 切换按钮 */
+.miaoyi-form-label {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  z-index: 2;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #7C5CF0;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(149, 124, 246, 0.2);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+.miaoyi-form-toggle {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 2;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #B39DDB 0%, #957CF6 100%);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(149, 124, 246, 0.35);
+}
+.miaoyi-form-toggle:active { transform: scale(0.95); }
+
+/* 舞台星光点缀 */
+.miaoyi-stage-sparkle {
+  position: absolute;
+  z-index: 1;
+  color: rgba(149, 124, 246, 0.75);
+  font-size: 14px;
+  animation: dreamSparkle 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+.miaoyi-stage-sparkle.s1 { top: 26%; left: 16%; }
+.miaoyi-stage-sparkle.s2 { top: 18%; right: 18%; font-size: 11px; animation-delay: 0.9s; }
+.miaoyi-stage-sparkle.s3 { bottom: 30%; right: 12%; font-size: 16px; animation-delay: 1.6s; }
+
+/* 舞台后的第一张卡片：留出破框空间 */
+.miaoyi-page .miaoyi-card:first-of-type {
+  margin-top: 30px;
+}
+
+@keyframes dreamFormIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(18px) scale(0.965); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes dreamGlowPulse {
+  0%, 100% { opacity: 0.65; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.07); }
+}
+@keyframes dreamSparkle {
+  0%, 100% { opacity: 0; transform: translateY(4px) scale(0.6); }
+  50% { opacity: 1; transform: translateY(-6px) scale(1); }
+}
+
+/* ---------- 7. 底部导航与顶栏：融入浅色环境 ---------- */
+.miaoyi-nav {
+  background: rgba(255, 255, 255, 0.86);
+  border-top: 1px solid rgba(149, 124, 246, 0.12);
+  box-shadow: 0 -6px 20px rgba(149, 124, 246, 0.08);
+}
+.header {
+  background: rgba(253, 251, 255, 0.82);
+}
+
+/* 设置按钮等圆形小控件 */
+.home-settings-btn,
+.profile-settings {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(149, 124, 246, 0.16);
+}
+
+/* ---------- 8. 签到按钮：主色紫渐变 ---------- */
+.checkin-btn {
+  background: linear-gradient(135deg, #B39DDB 0%, #957CF6 100%);
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(149, 124, 246, 0.3);
+}
+.checkin-btn.checked {
+  background: rgba(149, 124, 246, 0.14);
+  color: #7C5CF0;
+  box-shadow: none;
+}
+
+/* ---------- 9. 舞台立绘高度微调（避免头顶与名字重叠） ---------- */
+.miaoyi-stage-img { height: 86%; }
+
+/* ---------- 10. 聊天页：官方贴纸消息 ---------- */
+/* 贴纸消息：大图直出，不带气泡 */
+.sticker-msg {
+  margin: 2px 0;
+}
+.sticker-msg-img {
+  width: 108px;
+  height: 108px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 6px 16px rgba(149, 124, 246, 0.25));
+  animation: dreamStickerPop 0.4s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+}
+@keyframes dreamStickerPop {
+  from { opacity: 0; transform: scale(0.7) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* 喵艺表情表面板：毛玻璃 + 4 列网格 */
+.miao-sticker-panel {
+  position: absolute;
+  bottom: 100%;
+  left: 16px;
+  right: 16px;
+  margin-bottom: 8px;
+  z-index: 30;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 22px;
+  box-shadow: 0 10px 30px rgba(149, 124, 246, 0.16);
+  animation: slideUp 0.2s ease-out;
+}
+.miao-sticker-panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #5E4B8A;
+  margin: 0 0 10px;
+  letter-spacing: 1px;
+}
+.miao-sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.miao-sticker-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: none;
+  border-radius: 16px;
+  background: rgba(149, 124, 246, 0.06);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.miao-sticker-cell:active {
+  background: rgba(149, 124, 246, 0.16);
+}
+.miao-sticker-img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 8px rgba(149, 124, 246, 0.2));
+}
+.miao-sticker-label {
+  font-size: 11px;
+  color: #7C6A94;
+}
+
+/* ---------- 11. 聊天页输入区与面板：梦幻化 ---------- */
+.input-bar {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 20px rgba(149, 124, 246, 0.10);
+}
+.tool-btn.active {
+  background: rgba(149, 124, 246, 0.14);
+  box-shadow: 0 2px 8px rgba(149, 124, 246, 0.18);
+}
+.send-btn {
+  background: linear-gradient(135deg, #B39DDB 0%, #957CF6 100%);
+  box-shadow: 0 6px 16px rgba(149, 124, 246, 0.35);
+}
+
+.emoji-panel,
+.sticker-panel,
+.voice-recorder-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 22px;
+  box-shadow: 0 10px 30px rgba(149, 124, 246, 0.16);
+}
+.emoji-category-btn.active {
+  background: linear-gradient(135deg, #B39DDB 0%, #957CF6 100%);
+}
+
+/* 用户头像：淡紫圆形，替代素色 👤 */
+.message-avatar {
+  border-radius: 50%;
+  overflow: hidden;
+}
+.message-item.user .message-avatar {
+  background: linear-gradient(135deg, #C4B5FD 0%, #957CF6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(149, 124, 246, 0.25);
+}
+
+/* AI 气泡内附赠贴纸（文字+贴纸混排） */
+.bubble-stickers {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.bubble-sticker-img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(149, 124, 246, 0.25));
+  animation: dreamStickerPop 0.4s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+}
+
+
+/* 贴纸面板：资产增多后可滚动 */
+.miao-sticker-panel {
+  max-height: 46vh;
+  overflow-y: auto;
+}
+
+/* ---------- 12. 聊天气泡重构：紧凑 + 猫耳朵 + 时间戳归位（第2步） ---------- */
+
+/* 气泡行：气泡 + 侧边元信息（时间戳/发送状态）同行排布，不再各占一整行 */
+.bubble-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+.message-item.user .bubble-row {
+  flex-direction: row-reverse;
+}
+.bubble-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 0 0 auto;
+  padding-bottom: 3px;
+}
+.message-item.user .bubble-meta {
+  align-items: flex-end;
+}
+
+/* 时间戳归位：贴在气泡侧下沿，小字弱化，不再吃纵向空间 */
+.bubble-meta .message-time {
+  font-size: 10px;
+  line-height: 1;
+  margin-top: 0;
+  padding: 0;
+  text-align: left;
+  color: var(--miaoyi-text-muted);
+  opacity: 0.8;
+  white-space: nowrap;
+}
+.message-item.user .bubble-meta .message-time {
+  color: var(--miaoyi-text-muted);
+  opacity: 0.95;
+}
+
+/* 发送状态（✓✓/发送中/失败）：压缩为一行小字 */
+.bubble-meta .message-status {
+  padding: 0;
+  font-size: 10px;
+  line-height: 1.2;
+  gap: 2px;
+}
+
+/* 紧凑化：气泡内边距与消息间距再收紧 */
+.message-bubble {
+  padding: 9px 13px;
+  line-height: 1.5;
+}
+.bubble-row .message-bubble {
+  max-width: calc(100% - 52px); /* 给侧边时间戳留出位置 */
+}
+.message-item {
+  padding: 3px 0;
+  margin: 2px 0;
+}
+.message-item + .message-item {
+  margin-top: 2px;
+}
+
+/* 气泡名字行（喵艺·情绪）：保留但更秀气 */
+.bubble-sender {
+  margin-bottom: 2px;
+  font-size: 11px;
+  opacity: 0.85;
+}
+.bubble-sender-emoji {
+  font-size: 12px;
+}
+
+/* 猫耳朵：恢复显示（此前被微信式简洁风隐藏），梦幻软紫 */
+.bubble-cat-ears {
+  display: flex;
+  top: -7px;
+  left: 2px;
+  gap: 9px;
+}
+.bubble-cat-ear {
+  border-left-width: 8px;
+  border-right-width: 8px;
+  border-bottom-width: 12px;
+  border-bottom-color: #FFFFFF;
+  filter: drop-shadow(0 1px 1px rgba(149, 124, 246, 0.18));
+}
+.bubble-cat-ear::after {
+  top: 5px;
+  left: -4px;
+  border-left-width: 4px;
+  border-right-width: 4px;
+  border-bottom-width: 6px;
+  border-bottom-color: rgba(149, 124, 246, 0.28);
+}
+
+/* ---------- 13. 底部输入区：一体胶囊（第3步） ---------- */
+
+/* 一体胶囊：输入行与工具行同在一个毛玻璃胶囊内。
+   DOM 顺序为 [工具行][输入框][拨号][发送]，用 flex-wrap + order
+   在窄屏折行为「上输入行 + 下工具行」，无需改动 JSX。 */
+.input-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 4px;
+  column-gap: 6px;
+  border-radius: 24px;
+  padding: 8px 10px;
+}
+.message-input-wrapper { order: 1; }
+.call-btn { order: 1; }
+.send-btn { order: 1; }
+.input-tools {
+  order: 2;
+  flex: 1 0 100%;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+}
+
+/* 拆掉「盒中盒」：输入框直接坐在胶囊表面上，不再有独立描边盒子 */
+.message-input-wrapper {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 20px;
+  transition: background 0.2s ease;
+}
+.message-input-wrapper:focus-within {
+  border: none;
+  box-shadow: none;
+  background: rgba(149, 124, 246, 0.06);
+}
+.message-input {
+  padding: 8px 12px;
+  min-height: 34px;
+}
+
+/* 工具按钮：缩小一圈，居中排列更秀气 */
+.input-tools .tool-btn {
+  width: 34px;
+  height: 34px;
+  font-size: 16px;
+}
+
+/* 拨号按钮：此前完全无样式，补齐为圆形工具按钮 */
+.call-btn {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(149, 124, 246, 0.10);
+  font-size: 17px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.call-btn:active { transform: scale(0.92); }
+.call-btn.calling {
+  background: linear-gradient(135deg, #FF8A80 0%, #E74C3C 100%);
+  box-shadow: 0 4px 14px rgba(231, 76, 60, 0.35);
+  animation: dreamCallPulse 1.2s ease-in-out infinite;
+}
+@keyframes dreamCallPulse {
+  0%, 100% { box-shadow: 0 4px 14px rgba(231, 76, 60, 0.35); }
+  50% { box-shadow: 0 4px 20px rgba(231, 76, 60, 0.6); }
+}
+
+/* 发送按钮与胶囊内其它元素垂直居中 */
+.input-bar .send-btn {
+  width: 38px;
+  height: 38px;
+}
+
+/* 宽屏（桌面/侧栏拉开）：恢复单行排布 */
+@media (min-width: 900px) {
+  .input-bar { flex-wrap: nowrap; }
+  .input-tools { order: 0; flex: 0 0 auto; }
+}
+
+/* ---------- 14. 右侧面板：情绪状态卡 + 抽屉式收起（第4/5步） ---------- */
+
+/* 情绪状态卡：原聊天页中间状态行（头像/情绪/亲密度/等级）收纳于此 */
+.sidebar-emotion-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 14px 10px;
+  padding: 10px 12px;
+  background: rgba(149, 124, 246, 0.06);
+  border: 1px solid rgba(149, 124, 246, 0.12);
+  border-radius: 16px;
+}
+.sidebar-emotion-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sidebar-emotion-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--miaoyi-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-emotion-lv {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--miaoyi-primary);
+  line-height: 1.2;
+}
+.sidebar-emotion-lv span {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--miaoyi-text-muted);
+}
+.growth-emotion-indicator {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+/* 抽屉拉手：右缘猫爪小把手，收起状态的可视入口 */
+.sidebar-drawer-handle {
+  position: absolute;
+  right: 0;
+  top: 44%;
+  z-index: 15;
+  width: 30px;
+  padding: 10px 0 8px;
+  border: none;
+  border-radius: 12px 0 0 12px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: -2px 2px 10px rgba(149, 124, 246, 0.16);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.sidebar-drawer-handle:active {
+  transform: translateX(2px) scale(0.97);
+}
+.drawer-handle-icon { font-size: 16px; line-height: 1; }
+.drawer-handle-chevron { font-size: 9px; color: var(--miaoyi-text-muted); line-height: 1; }
+
+/* 抽屉开合的平滑过渡 */
+.app-container .chat-area {
+  transition: margin-right 0.3s ease;
+}
+
+/* 宽屏：右侧面板变为可停靠抽屉（无遮罩，聊天内容左移让位） */
+@media (min-width: 900px) {
+  .sidebar {
+    right: -340px;
+    width: 320px;
+    max-width: 320px;
+  }
+  .sidebar.show { right: 0; }
+  .sidebar-own-mask.show {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .app-container.sidebar-open .chat-area {
+    margin-right: 320px;
+  }
+}
+
+/* ---------- 15. 快捷回复栏：卡片列表 -> 轻盈胶囊 chips（第6步） ---------- */
+.empty-quick-questions {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 340px;
+  width: 100%;
+}
+.quick-question-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(149, 124, 246, 0.16);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--miaoyi-text-secondary);
+  box-shadow: 0 2px 8px rgba(149, 124, 246, 0.08);
+  text-align: center;
+  animation: dreamChipIn 0.4s cubic-bezier(0.22, 0.9, 0.36, 1) both;
+}
+.quick-question-btn:nth-child(1) { animation-delay: 0.05s; }
+.quick-question-btn:nth-child(2) { animation-delay: 0.1s; }
+.quick-question-btn:nth-child(3) { animation-delay: 0.15s; }
+.quick-question-btn:nth-child(4) { animation-delay: 0.2s; }
+.quick-question-btn:nth-child(5) { animation-delay: 0.25s; }
+
+/* ---------- 16. 整体间距微调：统一 14px 页缘节奏（第7步） ---------- */
+.messages-container {
+  padding: 16px 14px;
+  padding-bottom: 180px;
+}
+.home-header,
+.memory-page-header {
+  padding: 16px 14px 8px;
+}
+.home-card,
+.home-miaoyi-card,
+.miaoyi-card {
+  margin-left: 14px;
+  margin-right: 14px;
+}
+.miaoyi-hero {
+  padding: 24px 14px 18px;
+}
+.memory-list {
+  padding: 8px 14px;
+}
+.profile-section {
+  padding: 0 14px;
+}
+
+/* ---------- 17. 用户气泡回归品牌紫（P0 主题色修复） ---------- */
+/* ui-upgrade 曾硬编码珊瑚橙渐变，挡住了 dreamlight 令牌定义的紫色用户气泡；
+   气泡尾巴用的是令牌紫，形成「橙身体+紫尾巴」错位。此处统一为品牌紫。 */
+.message-bubble.user {
+  background: var(--miaoyi-bubble-user-gradient);
+  box-shadow: 0 2px 10px rgba(149, 124, 246, 0.28);
+}
+.message-bubble.user:hover,
+.message-item:hover .message-bubble.user {
+  box-shadow: 0 4px 16px rgba(149, 124, 246, 0.35);
+}
+/* App.css 曾为已废弃的 send-status-indicator（无任何组件渲染）预留 20px 底部空间，
+   恢复紧凑内边距 */
+.message-item.user .message-bubble {
+  padding-bottom: 9px;
+}
+
+/* ---------- 18. 珊瑚橙残留清扫：品牌紫统一（第7步收尾） ---------- */
+/* ui-upgrade 中仍在使用的珊瑚橙规则，在此一票否决为梦幻紫。
+   （.chat-avatar/.splash-logo/.splash-title/.input-btn 等已确认无 JSX 引用，属死规则，不处理） */
+
+/* 消息头像底座 */
+.message-avatar {
+  box-shadow: 0 2px 8px rgba(149, 124, 246, 0.22);
+}
+.message-item.ai .message-avatar {
+  background: linear-gradient(135deg, #C4B5FD 0%, #957CF6 100%);
+}
+
+/* 会话列表头像 */
+.session-avatar {
+  background: linear-gradient(135deg, #C4B5FD 0%, #957CF6 100%);
+  box-shadow: 0 2px 8px rgba(149, 124, 246, 0.2);
+}
+
+/* 统计弹窗关闭按钮 */
+.stats-modal-close {
+  background: linear-gradient(135deg, #B39DDB 0%, #957CF6 100%);
+  box-shadow: 0 4px 14px rgba(149, 124, 246, 0.3);
+}
+
+/* 成就系统：解锁徽章与高光 */
+.achievement-badge {
+  background: linear-gradient(135deg, #B39DDB 0%, #957CF6 100%);
+  box-shadow: 0 2px 8px rgba(149, 124, 246, 0.3);
+}
+.achievement-card.unlocked .achievement-emoji {
+  filter: drop-shadow(0 2px 6px rgba(149, 124, 246, 0.35));
+}

@@ -1,0 +1,91 @@
+# ============================================================
+# 喵艺 · 开源仓库 .gitignore
+# 原则：密钥、用户数据、模型权重、二进制产物一律不入库
+# ============================================================
+
+# ---------- 密钥与本地配置 ----------
+.env
+.env.*
+!.env.example
+config.yaml
+docker-compose.override.yml
+*.pem
+*.key
+*.p12
+*.keystore
+*.jks
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+.venv*/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.mimosa/
+.coverage
+htmlcov/
+
+# ---------- 运行时数据（用户数据 / 状态 / 数据库） ----------
+data/
+*.db
+*.db-journal
+frontend/.server-port
+*.sqlite
+*.sqlite3
+logs/
+backups/
+exports/
+archive/
+temp/
+
+# ---------- 静态资源与二进制（体积大且含用户内容） ----------
+assets/
+models/
+GPT-SoVITS/
+samples/
+voice_cache/
+uploads/
+uploads_chat/
+*.apk
+*.aab
+*.wav
+*.mp3
+*.safetensors
+*.onnx
+*.bin
+*.pt
+*.ckpt
+*.mp4
+*.mov
+*.zip
+*.tar.gz
+
+# ---------- 前端 ----------
+node_modules/
+frontend/dist/
+frontend/android/app/build/
+frontend/android/build/
+frontend/.gradle/
+frontend/android/.gradle/
+*.tsbuildinfo
+
+# ---------- IDE / OS ----------
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- 内部文档与私有语料 ----------
+AGENTS.md
+prompts/private/
+knowledge_db/
+culture/
+languages/

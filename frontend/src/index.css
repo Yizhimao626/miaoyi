@@ -1,0 +1,70 @@
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+#preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* 【官方版图】紫夜星空启动屏，与 React SplashScreen 同风格 */
+  background: linear-gradient(180deg, #7B54D9 0%, #A87BF5 55%, #C9A0FA 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+}
+
+.preloader-logo {
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
+  box-shadow: 0 10px 30px rgba(40, 20, 90, 0.35);
+  animation: preloaderBounce 1.5s infinite ease-in-out;
+}
+
+.preloader-text {
+  margin-top: 20px;
+  font-family: 'ZCOOL KuaiLe', cursive;
+  font-size: 26px;
+  color: #FFFFFF;
+  text-shadow: 0 2px 10px rgba(40, 20, 90, 0.4);
+}
+
+.preloader-sub {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.preloader-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.preloader-dot {
+  width: 12px;
+  height: 12px;
+  /* 官方粉色猫爪作为加载点 */
+  background: url('/miaoyi/icons/icon_29.png') center/contain no-repeat;
+  animation: preloaderDotBounce 1.4s infinite ease-in-out;
+}
+
+.preloader-dot:nth-child(1) { animation-delay: 0s; }
+.preloader-dot:nth-child(2) { animation-delay: 0.2s; }
+.preloader-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes preloaderBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes preloaderDotBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-8px); }
+}

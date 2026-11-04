@@ -1,0 +1,200 @@
+:root {
+  --my-primary: #7c5cf0;
+  --my-primary-light: #9d85f5;
+  --my-bg: #f5f6fb;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--my-bg);
+}
+
+/* ---------- 布局 ---------- */
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  background: linear-gradient(180deg, #6d4fe0 0%, #8b5cf6 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.logo {
+  padding: 22px 20px;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.logo .cat { margin-right: 8px; }
+
+.menu { flex: 1; padding-top: 8px; }
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.75);
+  transition: all 0.2s;
+  font-size: 14.5px;
+  user-select: none;
+}
+.menu-item:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+.menu-item.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border-right: 3px solid #fff;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  height: 58px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+.header .title { font-size: 16.5px; font-weight: 600; color: #333; }
+.admin-info { display: flex; align-items: center; gap: 10px; color: #666; font-size: 14px; }
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+/* ---------- 通用卡片 ---------- */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(124, 92, 240, 0.06);
+}
+
+/* ---------- 看板 ---------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(124, 92, 240, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.stat-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.stat-value { font-size: 24px; font-weight: 700; color: #2d2d3a; line-height: 1.2; }
+.stat-label { font-size: 13px; color: #90919e; margin-top: 2px; }
+
+/* ---------- 7天趋势条形图 ---------- */
+.trend-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  height: 180px;
+  padding: 10px 6px 0;
+}
+.trend-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+.trend-bar {
+  width: 36px;
+  min-height: 4px;
+  background: linear-gradient(180deg, #9d85f5, #7c5cf0);
+  border-radius: 6px 6px 2px 2px;
+  transition: height 0.5s ease;
+}
+.trend-num { font-size: 12px; color: #666; }
+.trend-date { font-size: 12px; color: #90919e; }
+
+/* ---------- 登录页 ---------- */
+.login-page {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 55%, #a78bfa 100%);
+}
+.login-card {
+  width: 380px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 40px 36px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+.login-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2d2d3a;
+  margin: 0 0 6px;
+}
+.login-sub { text-align: center; font-size: 13px; color: #90919e; margin-bottom: 28px; }
+.login-btn {
+  width: 100%;
+  margin-top: 6px;
+  --el-button-bg-color: #7c5cf0;
+  --el-button-border-color: #7c5cf0;
+  --el-button-hover-bg-color: #9d85f5;
+  --el-button-hover-border-color: #9d85f5;
+}
+
+/* ---------- 表格页工具栏 ---------- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.pager { margin-top: 16px; display: flex; justify-content: flex-end; }
+
+.text-cell {
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mono { font-family: Consolas, Monaco, monospace; font-size: 12.5px; color: #7c5cf0; }
