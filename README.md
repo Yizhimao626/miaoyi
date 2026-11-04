@@ -8,6 +8,7 @@
 > A full-stack AI companion app with an emotion engine, long-term memory, real-time voice calls, and proactive care.
 > Built with **FastAPI + React 19 + WebSocket**, and shipped as both a **web app** and an **Android APK** through Capacitor.
 
+[![CI](https://github.com/Yizhimao626/miaoyi/actions/workflows/ci.yml/badge.svg)](https://github.com/Yizhimao626/miaoyi/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)

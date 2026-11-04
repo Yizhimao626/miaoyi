@@ -8,6 +8,7 @@
 > 全栈 AI 陪伴应用：情感引擎 + 长期记忆 + 实时语音通话 + 主动关怀。
 > 技术栈 **FastAPI + React 19 + WebSocket**，同一套代码同时产出 **网页版** 与 **安卓 APK**（Capacitor）。
 
+[![CI](https://github.com/Yizhimao626/miaoyi/actions/workflows/ci.yml/badge.svg)](https://github.com/Yizhimao626/miaoyi/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
