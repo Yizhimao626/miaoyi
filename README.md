@@ -3,7 +3,7 @@
   <a href="README.zh-CN.md">简体中文</a>
 </p>
 
-# Miaoyi · An AI Companion That Feels, Remembers, and Talks
+# Miaoyi（喵艺）· An AI Companion That Feels, Remembers, and Talks
 
 > A full-stack AI companion app with an emotion engine, long-term memory, real-time voice calls, and proactive care.
 > Built with **FastAPI + React 19 + WebSocket**, and shipped as both a **web app** and an **Android APK** through Capacitor.
