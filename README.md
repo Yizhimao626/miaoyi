@@ -15,15 +15,15 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <p align="center">
-  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/demo.gif" width="26%" alt="Live chat demo" />
+  <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/demo.gif" width="26%" alt="Live chat demo" />
 </p>
 <p align="center"><em>Live demo — send a message, watch the streaming reply (16 s, recorded from the running app)</em></p>
 
 <p align="center">
-  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/home.png" width="24%" alt="Home" />
-  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/chat.png" width="24%" alt="Chat" />
-  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/memory.png" width="24%" alt="Memory" />
-  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/login.png" width="24%" alt="Login" />
+  <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/home.png" width="24%" alt="Home" />
+  <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/chat.png" width="24%" alt="Chat" />
+  <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/memory.png" width="24%" alt="Memory" />
+  <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/login.png" width="24%" alt="Login" />
 </p>
 <p align="center"><em>Home · Chat · Memory · Login — captured from the running app</em></p>
 

@@ -15,15 +15,15 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <p align="center">
-  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/demo.gif" width="26%" alt="聊天演示" />
+  <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/demo.gif" width="26%" alt="聊天演示" />
 </p>
 <p align="center"><em>实时演示：发送消息 → 流式回复（16 秒，取自线上运行实例）</em></p>
 
 <p align="center">
-  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/home.png" width="24%" alt="首页" />
-  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/chat.png" width="24%" alt="聊天" />
-  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/memory.png" width="24%" alt="记忆" />
-  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/login.png" width="24%" alt="登录" />
+  <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/home.png" width="24%" alt="首页" />
+  <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/chat.png" width="24%" alt="聊天" />
+  <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/memory.png" width="24%" alt="记忆" />
+  <img src="https://raw.githack.com/Yizhimao626/miaoyi/main/docs/screenshots/login.png" width="24%" alt="登录" />
 </p>
 <p align="center"><em>首页 · 聊天 · 记忆 · 登录 —— 实机截图</em></p>
 
