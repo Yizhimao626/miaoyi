@@ -25,6 +25,7 @@ env/
 .venv*/
 *.egg-info/
 .pytest_cache/
+tests/frontend/.build/
 .mypy_cache/
 .ruff_cache/
 .mimosa/
