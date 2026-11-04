@@ -1,3 +1,8 @@
+<p align="center">
+  <a href="README.md"><b>English</b></a> ·
+  <a href="README.zh-CN.md">简体中文</a>
+</p>
+
 # Miaoyi · An AI Companion That Feels, Remembers, and Talks
 
 > A full-stack AI companion app with an emotion engine, long-term memory, real-time voice calls, and proactive care.
@@ -10,15 +15,15 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <p align="center">
-  <img src="docs/screenshots/demo.gif" width="26%" alt="Live chat demo" />
+  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/demo.gif" width="26%" alt="Live chat demo" />
 </p>
 <p align="center"><em>Live demo — send a message, watch the streaming reply (16 s, recorded from the running app)</em></p>
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="24%" alt="Home" />
-  <img src="docs/screenshots/chat.png" width="24%" alt="Chat" />
-  <img src="docs/screenshots/memory.png" width="24%" alt="Memory" />
-  <img src="docs/screenshots/login.png" width="24%" alt="Login" />
+  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/home.png" width="24%" alt="Home" />
+  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/chat.png" width="24%" alt="Chat" />
+  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/memory.png" width="24%" alt="Memory" />
+  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/login.png" width="24%" alt="Login" />
 </p>
 <p align="center"><em>Home · Chat · Memory · Login — captured from the running app</em></p>
 
@@ -29,7 +34,7 @@
 Most "AI chatbot" demos stop at *send a message → get a reply*. Miaoyi is built as a small product, and the interesting part is everything around the reply:
 
 1. **Dual-brain LLM routing** — a cheap, fast model handles intent classification and emotion analysis as JSON; a stronger reasoning model writes the actual reply. Providers sit in a pool with role-based routing and automatic failover (60 s cooldown per provider).
-2. **An emotion engine that changes behavior** — mood, intimacy, and growth level are persisted per user and injected into every prompt, so the same input does not always produce the same answer.
+2. **An emotion engine that changes behavior** — four persistent state dimensions (`joy`, `arousal`, `intimacy`, `trust`) with natural decay are injected into every prompt, so the same input does not always produce the same answer.
 3. **End-to-end voice calls** — binary audio over WebSocket, faster-whisper for ASR, and a TTS fallback chain (CosyVoice2 → GPT-SoVITS → Edge TTS → Baidu → gTTS) that degrades gracefully instead of failing.
 4. **Memory with retrieval** — embeddings + emotion tags, retrieved per turn and surfaced as memory cards in the UI.
 5. **Proactive care** — a scheduler decides when to reach out, so the app is not purely reactive.
@@ -78,19 +83,27 @@ flowchart LR
     PE --> DE
 ```
 
+More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [中文版](docs/ARCHITECTURE.zh-CN.md)
+
 ---
 
-## Measured numbers
+## What's actually implemented
 
-Measured on a 2 vCPU / 2 GB cloud VM, single user, warm connection:
+No benchmark theatre — this is the code-level status of the repository:
 
-| Metric | Fast path (light tasks) | Main reply path |
+| Area | Status | What it does |
 |---|---|---|
-| First token | 0.7 – 1.0 s | 1.5 – 1.9 s |
-| Reply length | 8 – 13 tokens | 119 – 150 tokens |
-| Provider failover | automatic, 60 s cooldown | automatic, 60 s cooldown |
+| Emotion engine | ✅ working | Joy / arousal / intimacy / trust persisted per user, hourly decay, injected into prompts |
+| Memory | ✅ working | Embedding retrieval + emotion tags; results rendered as memory cards |
+| Dialogue | ✅ working | WebSocket streaming, dual-model role routing, provider failover with cooldown |
+| Voice call | ✅ working (needs ASR/TTS) | Binary audio over WebSocket, faster-whisper ASR, multi-tier TTS fallback |
+| Proactive care | ✅ working | Scheduler-driven outreach based on inactivity and relationship state |
+| Clients | ✅ working | React web, Capacitor Android APK with in-app update, optional Electron shell |
+| Offline demo | ✅ working | Built-in mock LLM: register → login → chat works with **zero API keys** |
+| Admin console | ✅ optional | Separate Vite app for user and content management |
+| Public demo site | ⏳ planned | Rate-limited guest instance is on the roadmap |
 
-The fast model is intentionally kept for latency-sensitive subtasks (intent, emotion JSON, tool routing); the reasoning model is reserved for the text the user actually reads.
+This was built and operated as a personal project for a small number of real users; it is honest about being a hobby-scale deployment, not a hyperscale service.
 
 ---
 
@@ -112,7 +125,7 @@ The fast model is intentionally kept for latency-sensitive subtasks (intent, emo
 ## Quick start
 
 ```bash
-git clone https://github.com/<your-name>/miaoyi.git
+git clone https://github.com/Yizhimao626/miaoyi.git
 cd miaoyi
 
 python -m venv .venv
@@ -171,6 +184,28 @@ docker compose up -d
 
 ---
 
+## Contributing — you're invited
+
+This project is meant to grow with contributors, not just to sit in a portfolio. If you like the idea of an AI companion that remembers and *changes*, there is room for you here.
+
+- **Good first issues** — [pick one and say "I'll take it"](https://github.com/Yizhimao626/miaoyi/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+- **Ideas and questions** — [start a discussion](https://github.com/Yizhimao626/miaoyi/discussions)
+- **Before a PR** — read [CONTRIBUTING.md](CONTRIBUTING.md); small, focused changes are easiest to review
+
+Areas where help is most useful:
+
+| Area | What we need |
+|---|---|
+| Docs | English/Chinese translations, diagrams, setup walkthroughs |
+| Testing | Unit tests for the emotion engine, dialogue engine, and LLM pool |
+| Frontend | Accessibility, mobile layout polish, animation |
+| Speech | More TTS/ASR backends, especially local-first ones |
+| Refactor | Splitting `server.py` into routers (see roadmap) |
+
+If you build something with this code, tell us in Discussions — we would love to link it from here.
+
+---
+
 ## Roadmap
 
 - [ ] Split `server.py` into `app/api/routes/*` (chat / call / auth / memory / admin)
@@ -183,7 +218,7 @@ docker compose up -d
 
 ## About this repository
 
-This is a **sanitized showcase version** of a personal project:
+This is a **sanitized showcase version** of a personal project (current app version: `1.1.9`):
 
 - No API keys, production configuration, or server addresses
 - No user data, chat history, or private persona corpora

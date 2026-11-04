@@ -1,3 +1,8 @@
+<p align="center">
+  <a href="README.md">English</a> ·
+  <a href="README.zh-CN.md"><b>简体中文</b></a>
+</p>
+
 # 喵艺 · 会感知情绪、记得住你、还能打电话的 AI 陪伴应用
 
 > 全栈 AI 陪伴应用：情感引擎 + 长期记忆 + 实时语音通话 + 主动关怀。
@@ -10,15 +15,15 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <p align="center">
-  <img src="docs/screenshots/demo.gif" width="26%" alt="聊天演示" />
+  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/demo.gif" width="26%" alt="聊天演示" />
 </p>
 <p align="center"><em>实时演示：发送消息 → 流式回复（16 秒，取自线上运行实例）</em></p>
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="24%" alt="首页" />
-  <img src="docs/screenshots/chat.png" width="24%" alt="聊天" />
-  <img src="docs/screenshots/memory.png" width="24%" alt="记忆" />
-  <img src="docs/screenshots/login.png" width="24%" alt="登录" />
+  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/home.png" width="24%" alt="首页" />
+  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/chat.png" width="24%" alt="聊天" />
+  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/memory.png" width="24%" alt="记忆" />
+  <img src="https://cdn.jsdelivr.net/gh/Yizhimao626/miaoyi@main/docs/screenshots/login.png" width="24%" alt="登录" />
 </p>
 <p align="center"><em>首页 · 聊天 · 记忆 · 登录 —— 实机截图</em></p>
 
@@ -29,7 +34,7 @@
 大多数「AI 聊天 Demo」止步于 **发消息 → 收回复**。喵艺是按一个真实产品做的，真正有意思的是回复之外的部分：
 
 1. **双脑 LLM 路由** —— 便宜快的模型负责意图分类与情绪分析（输出 JSON），更强的推理模型负责真正说出口的那句话；多供应商池按角色路由，单供应商故障后 60 秒冷却自动切换。
-2. **会改变行为的情感引擎** —— 心情、亲密度、成长等级按用户持久化，并注入每一轮 prompt，同样一句话不会永远得到同样的回复。
+2. **会改变行为的情感引擎** —— `joy`（愉悦）、`arousal`（唤醒）、`intimacy`（亲密）、`trust`（信任）四个维度按用户持久化并自然衰减，注入每一轮 prompt，同样一句话不会永远得到同样的回复。
 3. **完整语音通话链路** —— WebSocket 传输二进制音频，faster-whisper 识别，TTS 降级链（CosyVoice2 → GPT-SoVITS → Edge TTS → 百度 → gTTS）逐级兜底而不是直接失败。
 4. **可检索的记忆** —— 向量化 + 情感标签，按轮次检索，并在界面中以记忆卡片呈现。
 5. **主动关怀** —— 调度器决定何时主动开口，而不是纯被动应答。
@@ -78,19 +83,27 @@ flowchart LR
     PE --> DE
 ```
 
+更多细节：[docs/ARCHITECTURE.zh-CN.md](docs/ARCHITECTURE.zh-CN.md) · [English](docs/ARCHITECTURE.md)
+
 ---
 
-## 实测数据
+## 实际实现了什么
 
-2 vCPU / 2 GB 云服务器、单用户、连接已预热：
+不放虚的跑分数字，这里按代码的真实状态列出：
 
-| 指标 | 快路径（轻任务） | 主回复路径 |
+| 模块 | 状态 | 说明 |
 |---|---|---|
-| 首 token | 0.7 – 1.0 s | 1.5 – 1.9 s |
-| 回复长度 | 8 – 13 tokens | 119 – 150 tokens |
-| 供应商故障转移 | 自动，60 秒冷却 | 自动，60 秒冷却 |
+| 情感引擎 | ✅ 可用 | joy / arousal / intimacy / trust 四维持久化，按小时衰减，注入 prompt |
+| 记忆 | ✅ 可用 | 向量检索 + 情感标签，结果以记忆卡片呈现 |
+| 对话 | ✅ 可用 | WebSocket 流式输出，双模型角色路由，供应商冷却故障转移 |
+| 语音通话 | ✅ 可用（需 ASR/TTS） | WebSocket 二进制音频，faster-whisper 识别，多级 TTS 兜底 |
+| 主动关怀 | ✅ 可用 | 依据沉默时长与关系状态由调度器触发 |
+| 三端 | ✅ 可用 | React 网页、Capacitor 安卓 APK（应用内更新）、可选 Electron |
+| 离线演示 | ✅ 可用 | 内置 mock LLM：**零 API Key** 也能注册 → 登录 → 聊天 |
+| 管理后台 | ✅ 可选 | 独立 Vite 应用，用于用户与内容管理 |
+| 公开演示站 | ⏳ 计划中 | 限流游客实例在路线图中 |
 
-快模型专门留给延迟敏感的子任务（意图、情绪 JSON、工具路由），推理模型只负责用户真正读到的那段正文。
+这是作为个人项目、面向少量真实用户开发和运营的；它诚实地定位在业余规模，而不是超大规模服务。
 
 ---
 
@@ -112,7 +125,7 @@ flowchart LR
 ## 快速开始
 
 ```bash
-git clone https://github.com/<your-name>/miaoyi.git
+git clone https://github.com/Yizhimao626/miaoyi.git
 cd miaoyi
 
 python -m venv .venv
@@ -171,6 +184,28 @@ docker compose up -d
 
 ---
 
+## 参与贡献 —— 诚邀加入
+
+这个项目不只是作品集里的一个仓库，更希望和贡献者一起长大。如果你也喜欢「会记得你、也会因你而改变」的 AI 伴侣这个方向，这里有你的位置。
+
+- **新手任务（good first issue）** —— [挑一个，留言「我来做」](https://github.com/Yizhimao626/miaoyi/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+- **想法与提问** —— [发起 Discussion](https://github.com/Yizhimao626/miaoyi/discussions)
+- **提 PR 前** —— 先读 [CONTRIBUTING.md](CONTRIBUTING.md)；小而聚焦的改动最容易 review
+
+最需要帮助的方向：
+
+| 方向 | 具体需要 |
+|---|---|
+| 文档 | 中英互译、架构图、部署 walkthrough |
+| 测试 | 情感引擎、对话引擎、LLM 池的单元测试 |
+| 前端 | 无障碍、移动端布局打磨、动效 |
+| 语音 | 更多 TTS/ASR 后端，尤其是本地优先方案 |
+| 重构 | 拆分 `server.py`（见路线图） |
+
+如果你用这份代码做出了东西，欢迎到 Discussions 告诉我们，我们很想把它链接到这里。
+
+---
+
 ## 路线图
 
 - [ ] 拆分 `server.py` 为 `app/api/routes/*`（对话 / 通话 / 鉴权 / 记忆 / 管理）
@@ -183,7 +218,7 @@ docker compose up -d
 
 ## 关于本仓库
 
-这是个人项目的 **脱敏展示版**：
+这是个人项目的 **脱敏展示版**（当前应用版本：`1.1.9`）：
 
 - 不含 API Key、生产配置与服务器地址
 - 不含用户数据、聊天记录与私有语料

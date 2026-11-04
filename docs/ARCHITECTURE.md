@@ -1,81 +1,83 @@
-# 架构说明 / Architecture
+# Architecture
 
-本文档说明喵艺的核心分层与关键链路，方便快速定位代码。
+**English** · [简体中文](ARCHITECTURE.zh-CN.md)
 
-## 1. 分层
+This document describes Miaoyi's core layers and the key request paths, so you can find the relevant code quickly.
+
+## 1. Layers
 
 ```
-客户端 (React / Capacitor Android)
+Client (React / Capacitor Android)
         │  REST + WebSocket
         ▼
-API 层 (server.py)          ── 鉴权、会话、记忆、通话、管理后台路由
+API layer (server.py)          ── auth, sessions, memory, calls, admin routes
         │
         ▼
-引擎层 (core/)              ── 对话、情感、记忆、人格、LLM 路由、语音、主动关怀
+Engine layer (core/)           ── dialogue, emotion, memory, persona, LLM router, speech, proactive care
         │
         ▼
-服务层 (services/、utils/)  ── 消息编排、日志、配置、会话状态
+Service layer (services/, utils/) ── message orchestration, logging, config, session state
         │
         ▼
-数据层 (db_manager.py)      ── SQLite / MySQL 抽象，统一读写入口
+Data layer (db_manager.py)     ── SQLite / MySQL abstraction, single read/write entry point
 ```
 
-设计原则：**API 层只做协议转换与鉴权，业务判断全部下沉到 `core/`**，这样同一套引擎既服务 HTTP 也服务 WebSocket，未来接第三方协议时不需要复制逻辑。
+Design rule: **the API layer only does protocol translation and authentication; all business decisions live in `core/`**. The same engines serve both HTTP and WebSocket, so adding another protocol later does not require duplicating logic.
 
-## 2. 一次对话的请求链路
+## 2. The path of one conversation turn
 
-1. 客户端通过 WebSocket 发送用户消息（HTTP 接口同样支持，供无 WS 场景降级）
-2. 对话引擎组装上下文：系统人格 + 情感状态 + 检索到的记忆 + 最近若干轮对话
-3. **LLM 路由**按角色选择模型：
-   - `emotion`：判断用户情绪，输出结构化 JSON（快模型）
-   - `light`：意图分类（是否需要搜索、是否工具调用）
-   - `chat`：生成用户实际读到的回复（推理模型，流式）
-4. 流式 token 逐块推回客户端
-5. 对话结束后异步更新情感状态、写入记忆、必要时触发主动关怀
+1. The client sends a user message over WebSocket (the HTTP endpoint is supported as a fallback)
+2. The dialogue engine assembles context: system persona + emotion state + retrieved memories + the last few turns
+3. **LLM routing** picks a model per role:
+   - `emotion`: classify the user's mood, return structured JSON (fast model)
+   - `light`: intent classification (needs search? tool call?)
+   - `chat`: generate the reply the user actually reads (reasoning model, streaming)
+4. Streamed tokens are pushed back chunk by chunk
+5. After the turn, emotion state is updated asynchronously, memories are written, and proactive care may be triggered
 
-## 3. LLM 供应商池
+## 3. LLM provider pool
 
-- 供应商在 `config.yaml` 的 `llm.providers` 中声明，`api_key_env` 指向环境变量名
-- 未配置 key 的供应商在启动时自动跳过
-- 某个供应商连续失败后进入 **60 秒冷却**，期间请求转向下一个可用供应商
-- 调用方显式指定 `model` 时，该指定只对原始首供应商生效，回退时使用各供应商自己的默认模型（避免不同厂商模型名混用导致 400）
+- Providers are declared in `llm.providers` in `config.yaml`; `api_key_env` points at the environment variable name
+- Providers without a configured key are skipped at startup
+- A provider that keeps failing enters a **60 s cooldown**, during which requests go to the next available provider
+- When the caller passes an explicit `model`, it only applies to the primary provider; fallbacks use each provider's own default model (mixing vendor-specific model names causes HTTP 400)
 
-## 4. 情感与记忆
+## 4. Emotion and memory
 
-- **情感状态**：心情、亲密度、成长等级按用户持久化，注入 system prompt 影响语气与长度
-- **记忆**：每条记忆带情感标签与时间戳；检索时同时考虑语义相似度与情感相关度
-- **记忆卡片**：检索结果会作为可视化卡片返回前端，用户可以感知"它记得我"
+- **Emotion state**: `joy` / `arousal` / `intimacy` / `trust` are persisted per user with natural decay and injected into the system prompt, influencing tone and reply length
+- **Memory**: every memory record carries an emotion tag and a timestamp; retrieval considers both semantic similarity and emotional relevance
+- **Memory cards**: retrieval results are returned to the frontend as visual cards, so the user can feel that "it remembers me"
 
-## 5. 通话链路
+## 5. Call pipeline
 
 ```
-客户端点击拨号
-  → POST /call/dial（建立通话会话，返回 call_id）
-  → WebSocket 建立连接（必须携带有效 token，且与路径 user_id 一致）
-  → 客户端录音并分片上传
-  → 后端 ASR（faster-whisper）转写
-  → 对话引擎生成回复
-  → TTS 合成 → 二进制音频帧推回
-  → 客户端 AudioContext 解码播放
+Client taps the call button
+  → POST /call/dial (creates a call session, returns call_id)
+  → WebSocket connects (must carry a valid token matching the path user_id)
+  → Client records audio and uploads it in chunks
+  → Backend ASR (faster-whisper) transcribes
+  → Dialogue engine generates a reply
+  → TTS synthesis → binary audio frames pushed back
+  → Client decodes and plays via AudioContext
 ```
 
-两个已知的工程细节：
+Two engineering details worth knowing:
 
-- **移动端自动播放限制**：AudioContext 必须在用户手势内 `resume()`，否则表现为"接通了但没声音"
-- **TTS 降级链**：CosyVoice2 → GPT-SoVITS → Edge TTS → 百度 TTS → 本地 → gTTS；任一环节不可用自动降级，空音频不会推给前端
+- **Mobile autoplay restrictions**: AudioContext must be `resume()`d inside a user gesture, otherwise the call connects but stays silent
+- **TTS fallback chain**: CosyVoice2 → GPT-SoVITS → Edge TTS → Baidu TTS → local → gTTS; any unavailable tier degrades automatically, and empty audio is never pushed to the client
 
-## 6. 数据模型（简化）
+## 6. Data model (simplified)
 
-| 表 / 文件 | 用途 |
+| Table / file | Purpose |
 |---|---|
-| `users` | 账号、鉴权、角色 |
-| `sessions` / `messages` | 会话与消息历史 |
-| `memories` | 记忆条目（文本、情感标签、向量、时间） |
-| `emotion_state` | 心情、亲密度、成长值 |
-| `data/*.json` | 轻量运行时状态（缓存、设置、用户偏好） |
+| `users` | Accounts, authentication, roles |
+| `sessions` / `messages` | Sessions and message history |
+| `memories` | Memory records (text, emotion tag, vector, timestamp) |
+| `emotion_state` | Mood, intimacy, growth |
+| `data/*.json` | Lightweight runtime state (cache, settings, user preferences) |
 
-## 7. 部署形态
+## 7. Deployment shapes
 
-- 单机部署：systemd 托管 `server.py`，FastAPI 直接监听端口（无 nginx），前端静态产物由后端托管
-- 容器部署：`docker compose up -d`，数据、备份、日志各挂一个 volume
-- 安卓：Capacitor 打包 WebView 壳，APK 通过后端 `/download/latest` 分发，应用内检查 `/api/version/check`
+- Single VM: systemd runs `server.py`, FastAPI listens directly (no nginx), and the backend serves the built frontend
+- Containers: `docker compose up -d`, with separate volumes for data, backups, and logs
+- Android: Capacitor wraps the web app in a WebView; the APK is distributed by the backend at `/download/latest` and checks for updates via `/api/version/check`
