@@ -20,7 +20,9 @@ cd frontend && npm install && npm run dev   # 前端 :5173
 ## 提交前自检
 
 - [ ] `python -m compileall -q server.py db_manager.py core services utils` 通过
-- [ ] `cd frontend && npm run build` 通过
+- [ ] `python tests/test_llm_pool.py` → `LLM POOL TESTS: 6/6 PASS`
+- [ ] `python -m pytest tests/test_llm_call_sites.py tests/test_reminders.py -q` 全绿
+- [ ] `cd frontend && npm run build && npm run test` 通过
 - [ ] 没有提交 `.env` / `config.yaml` / `data/` / `assets/` / 任何密钥
 - [ ] 新增逻辑有对应的测试或说明无法测试的原因
 - [ ] 改动范围聚焦，没有顺手重构无关文件
