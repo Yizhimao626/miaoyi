@@ -267,6 +267,11 @@ docker compose up -d
 
 [AGPL-3.0](LICENSE) —— 允许使用、修改与自托管；若将修改版作为网络服务对外提供，需公开你的改动。
 
+### 素材与第三方组件
+
+- `frontend/public/miaoyi` 与 `docs/screenshots` 下的角色立绘、界面素材与截图由 AI 工具生成，与代码同样以 AGPL-3.0 授权。
+- 语音相关组件（Silero VAD 模型、ONNX Runtime Web）不以二进制形式入库，构建时从 npm 依赖复制；许可证文本见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
 ## 安全
 
 安全问题请通过私下渠道反馈，见 [SECURITY.md](SECURITY.md)。涉及凭据或用户数据的问题请勿开公开 Issue。

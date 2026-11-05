@@ -267,6 +267,11 @@ It is intended for learning and portfolio review. If you plan to run a public in
 
 [AGPL-3.0](LICENSE) — you may use, modify and self-host it, but if you run a modified version as a network service, you must publish your changes.
 
+### Assets and third-party components
+
+- Character art, UI artwork and screenshots under `frontend/public/miaoyi` and `docs/screenshots` were generated with AI tools and are released under the same AGPL-3.0 terms as the code.
+- Speech components (Silero VAD model, ONNX Runtime Web) are not committed as binaries — the build copies them from npm dependencies. License texts are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
 ## Security
 
 Please report vulnerabilities privately — see [SECURITY.md](SECURITY.md). Do not open a public issue for anything involving credentials or user data.

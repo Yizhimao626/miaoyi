@@ -72,6 +72,8 @@ uploads_chat/
 
 # ---------- 前端 ----------
 node_modules/
+# VAD 离线二进制：构建前由 frontend/scripts/sync-vad-assets.mjs 从 node_modules 复制
+frontend/public/vad/ort/
 frontend/dist/
 frontend/android/app/build/
 frontend/android/build/

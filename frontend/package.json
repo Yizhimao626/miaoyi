@@ -5,7 +5,9 @@
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
+    "predev": "node scripts/sync-vad-assets.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/sync-vad-assets.mjs",
     "build": "tsc && vite build",
     "test": "node ../tests/frontend/run.mjs",
     "preview": "vite preview",
