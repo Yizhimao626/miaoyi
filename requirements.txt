@@ -55,7 +55,7 @@ slowapi==0.1.9
 limits==3.14.1
 
 # 安全认证
-bcrypt==4.2.0
+bcrypt==5.0.0
 PyJWT==2.8.0
 
 # 测试
