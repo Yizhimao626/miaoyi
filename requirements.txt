@@ -28,7 +28,7 @@ faster-whisper==1.2.1
 # 向量处理
 sentence-transformers==2.7.0
 torch==2.3.1
-numpy==1.26.4
+numpy==2.2.6
 
 # 搜索与爬虫
 requests==2.32.3
