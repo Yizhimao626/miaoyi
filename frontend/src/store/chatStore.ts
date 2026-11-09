@@ -177,7 +177,7 @@ const loadFromStorage = (): Partial<ChatState> => {
 
 const saveToStorage = (state: ChatState): void => {
   try {
-    let dataToSave = {
+    const dataToSave = {
       messagesBySession: mapToObject(state.messagesBySession),
       currentSessionId: state.currentSessionId,
       emotionalState: state.emotionalState,
@@ -196,7 +196,7 @@ const saveToStorage = (state: ChatState): void => {
     if (size > MAX_STORAGE_SIZE) {
       console.warn(`[chatStore] Storage size exceeded (${size} bytes), cleaning up...`)
       
-      let cleanedMap = cleanupOldMessages(state.messagesBySession)
+      const cleanedMap = cleanupOldMessages(state.messagesBySession)
       dataToSave.messagesBySession = mapToObject(cleanedMap)
       
       size = estimateSize(dataToSave)
