@@ -3,20 +3,20 @@
 # 生产环境附加依赖见 requirements-prod.txt
 
 # 核心框架
-fastapi==0.115.0
-uvicorn==0.30.1
-pydantic==2.9.1
-python-dotenv==1.0.1
-pyyaml==6.0.2
+fastapi==0.162.0
+uvicorn==0.54.0
+pydantic==2.14.3
+python-dotenv==1.2.4
+pyyaml==6.0.3
 
 # 数据库（sqlite3 是 Python 标准库，无需安装）
 
 # 语音相关
-edge-tts==6.1.14
-pyttsx3==2.90
-sounddevice==0.4.6
-soundfile==0.12.1
-SpeechRecognition==3.16.1
+edge-tts==6.1.19
+pyttsx3==2.99
+sounddevice==0.5.6
+soundfile==0.14.0
+SpeechRecognition==3.17.0
 faster-whisper==1.2.1
 
 # 可选: 推送通知（Web Push / VAPID，未安装则推送开关无实际效果）
@@ -27,40 +27,42 @@ faster-whisper==1.2.1
 
 # 向量处理
 sentence-transformers==2.7.0
+# 暂不跟随 2.x 小版本升级：sentence-transformers 2.7.0 与高版本 torch 运行时兼容性未验证
 torch==2.3.1
 numpy==1.26.4
 
 # 搜索与爬虫
-requests==2.32.3
+requests==2.34.2
 httpx==0.28.1
-beautifulsoup4==4.12.3
-trafilatura==1.2.1
+beautifulsoup4==4.15.0
+trafilatura==1.12.2
 # duckduckgo-search==5.3.0  # 可选，依赖 orjson 可能存在兼容性问题；未安装时代码自动降级
 
 # AI SDK
-zhipuai==2.0.1
+zhipuai==2.1.5.20250825
 
 # 工具库
-pillow==10.3.0
+pillow==10.4.0
 jieba==0.42.1
-nltk==3.8.1
+nltk==3.10.4
 python-dateutil==2.9.0.post0
-pytz==2024.1
-tqdm==4.66.4
-emoji==2.15.0
+pytz==2024.2
+tqdm==4.70.1
+emoji==2.16.0
 psutil==7.2.2
 
 # 限流
-slowapi==0.1.9
+slowapi==0.1.10
 limits==3.14.1
 
 # 安全认证
-bcrypt==4.2.0
+bcrypt==4.3.0
+# zhipuai 2.1.5 要求 pyjwt<2.9.0，升级会与 requirements.txt 中的 zhipuai 冲突
 PyJWT==2.8.0
 
 # 测试
-pytest==8.3.3
-pytest-mock==3.14.0
-websocket-client==1.9.0
-python-multipart==0.0.9
-pymysql==1.1.1
+pytest==8.4.2
+pytest-mock==3.17.0
+websocket-client==1.9.2
+python-multipart==0.0.32
+pymysql==1.2.3
