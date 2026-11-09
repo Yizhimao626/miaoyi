@@ -9,7 +9,8 @@ pyyaml==6.0.3
 
 # 认证
 bcrypt==4.3.0
-PyJWT==2.15.1
+# 与 requirements.txt 保持一致：zhipuai 要求 pyjwt<2.9.0
+PyJWT==2.8.0
 
 # 测试与覆盖率
 pytest==8.4.2
