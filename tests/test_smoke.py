@@ -28,6 +28,14 @@ API_BASE = f'{BASE_URL}/api'
 WS_URL = BASE_URL.replace('http://', 'ws://').replace('https://', 'wss://').rstrip('/') + '/ws'
 TIMEOUT = 30
 
+# 端到端测试依赖真实运行的后端，CI 里默认跳过，避免误报失败。
+# 需要跑时：MIAOYI_RUN_SMOKE=1 pytest tests/test_smoke.py
+if os.environ.get('MIAOYI_RUN_SMOKE') != '1':
+    pytest.skip(
+        '端到端烟雾测试需要本地后端运行，设置 MIAOYI_RUN_SMOKE=1 后执行',
+        allow_module_level=True,
+    )
+
 # 测试结果
 results = []
 

@@ -778,6 +778,14 @@ class TestAnniversaryRitual(unittest.TestCase):
         import asyncio
         from datetime import datetime as _dt
 
+        # 系统人格 prompt 属于本地私有资源，不随开源仓库分发
+        persona_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'enhance', 'prompts', 'system_persona.txt',
+        )
+        if not os.path.exists(persona_path):
+            self.skipTest('enhance/prompts/system_persona.txt 未随仓库分发')
+
         from enhance.core.proactive_engine import ProactiveConfig, ProactiveEngine, UserCtx
 
         class FakeLLM:
