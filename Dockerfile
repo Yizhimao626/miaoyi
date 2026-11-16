@@ -1,7 +1,7 @@
 # 喵艺 AI 伴侣 · 后端 Dockerfile
 # ================================
 
-FROM python:3.10-slim
+FROM python:3.15-slim
 
 # 环境变量
 ENV PYTHONDONTWRITEBYTECODE=1 \
